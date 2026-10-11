@@ -236,7 +236,7 @@
                 android:background="@drawable/bg_primary_cyber_btn"
                 app:backgroundTint="@null"
                 android:text="AUTHORIZE &amp; CONNECT"
-                android:textColor="#04120A"
+                android:textColor="@color/on_accent"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.04" />

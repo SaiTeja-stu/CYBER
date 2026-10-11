@@ -5,22 +5,27 @@
         <item name="android:windowBackground">@drawable/bg_gradient</item>
         <item name="android:statusBarColor">@color/bg_b</item>
         <item name="android:navigationBarColor">@color/bg_c</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightStatusBar">@bool/light_system_bars</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">@bool/light_system_bars</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:forceDarkAllowed" tools:targetApi="29">false</item>
         <item name="android:windowAnimationStyle">@style/SecureMeWindowAnim</item>
     </style>
 
-    <!-- Launch screen: logo centred on the brand gradient, no action bar. -->
+    <!-- Launch: plain white window so the animated loading screen is the only one the user sees.
+         Android 12+ splash attributes are in values-v31/themes.xml. -->
     <style name="Theme.SecureMe.Splash" parent="Theme.CyberShield">
-        <item name="android:windowBackground">@drawable/splash_bg</item>
+        <item name="android:windowBackground">@color/splash_bg</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
         <item name="android:windowFullscreen">false</item>
-        <item name="android:statusBarColor">@color/bg_a</item>
-        <item name="android:navigationBarColor">@color/bg_c</item>
+        <item name="android:statusBarColor">@color/splash_bg</item>
+        <item name="android:navigationBarColor">@color/splash_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
     </style>
 
     <!-- Sign in / Auth screen: no action bar before sign-in -->

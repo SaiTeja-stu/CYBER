@@ -1,42 +1,81 @@
 <resources>
-    <!-- Secure Me palette: neutral black surfaces, hairline borders, one mint-green accent -->
-    <color name="cyber_dark_bg">#050505</color>
-    <color name="cyber_card_bg">#0E0E0E</color>
-    <color name="cyber_card_stroke">#1F1F1F</color>
-    <color name="cyber_dock_bg">#EB111515</color>
-    <color name="cyber_dock_stroke">#26302B</color>
+    <!-- Light mode (default): white cards on a soft off-white page, one neon-orange accent.
+         Dark-mode values (green accent) live in values-night/colors.xml. -->
+    <color name="cyber_dark_bg">#F4F6F5</color>
+    <color name="cyber_card_bg">#FFFFFF</color>
+    <color name="cyber_card_stroke">#E3E7E5</color>
+    <color name="cyber_dock_bg">#F7FFFFFF</color>
+    <color name="cyber_dock_stroke">#DCE3DF</color>
+    <color name="cyber_input_bg">#F6F8F7</color>
 
-    <!-- Accent Tokens -->
-    <color name="cyber_emerald">#1BD671</color>
-    <color name="cyber_emerald_glow">#401BD671</color>
-    <color name="cyber_emerald_deep">#0F5A27</color>
-    <color name="cyber_crimson">#E5484D</color>
-    <color name="cyber_crimson_bg">#20E5484D</color>
-    <color name="cyber_blue">#7DD3FC</color>
+    <color name="cyber_emerald">#FF6B00</color>
+    <color name="cyber_emerald_glow">#40FF6B00</color>
+    <color name="cyber_emerald_deep">#B34A00</color>
+    <color name="cyber_crimson">#D93036</color>
+    <color name="cyber_crimson_bg">#1AD93036</color>
+    <color name="cyber_blue">#0284C7</color>
 
-    <!-- Legacy / Base mappings -->
-    <color name="ink">#050505</color>
-    <color name="panel">#0E0E0E</color>
-    <color name="edge">#1F1F1F</color>
-    <color name="text">#F2F2F2</color>
-    <color name="muted">#9F9F9F</color>
-    <color name="text_dim">#666666</color>
-    <color name="sky">#1BD671</color>
+    <color name="ink">#F4F6F5</color>
+    <color name="panel">#FFFFFF</color>
+    <color name="edge">#E3E7E5</color>
+    <color name="text">#111413</color>
+    <color name="muted">#5F6763</color>
+    <color name="text_dim">#8A918D</color>
+    <color name="sky">#FF6B00</color>
+    <color name="on_accent">#1A0A00</color>
+    <color name="tip_box_bg">#FFF1E6</color>
 
+    <!-- Launch/loading screen: always orange on white -->
+    <color name="splash_bg">#FFFFFF</color>
+    <color name="splash_ink">#111413</color>
+    <color name="splash_accent">#FF6800</color>
+    <color name="splash_done">#22C55E</color>
+
+    <!-- Same in both modes: risk colours carry meaning, so "safe" stays green -->
     <color name="risk_safe">#1BD671</color>
     <color name="risk_suspicious">#F5C451</color>
     <color name="risk_high">#F08A3C</color>
     <color name="risk_malicious">#E5484D</color>
 
-    <!-- Card / glass tokens -->
-    <color name="glass">#F20E0E0E</color>
-    <color name="glass_strong">#F20E0E0E</color>
-    <color name="glass_edge">#1F1F1F</color>
-    <color name="glass_dim">#0A0A0A</color>
+    <color name="glass">#FFFFFFFF</color>
+    <color name="glass_strong">#FFFFFFFF</color>
+    <color name="glass_edge">#E3E7E5</color>
+    <color name="glass_dim">#F1F4F2</color>
 
-    <!-- Background gradient stops (black with a faint green lift at the top) -->
-    <color name="bg_a">#07100B</color>
-    <color name="bg_b">#030504</color>
-    <color name="bg_c">#000000</color>
-    <color name="scrim">#CC000000</color>
+    <color name="bg_a">#FFF4EC</color>
+    <color name="bg_b">#F6F8F7</color>
+    <color name="bg_c">#F4F6F5</color>
+    <color name="bg_glow">#14FF6B00</color>
+    <color name="scrim">#99000000</color>
+    <color name="nav_glass">#E6FFFFFF</color>
+    <color name="donut_track">#1A000000</color>
+
+    <!-- Bottom dock + primary buttons: neon orange on frosted glass -->
+    <color name="nav_neon">#FF6B00</color>
+    <color name="nav_neon_idle">#B3FF6B00</color>
+    <color name="nav_neon_soft">#1FFF6B00</color>
+    <color name="nav_neon_edge">#59FF6B00</color>
+    <color name="nav_neon_hi">#FF9A3C</color>
+    <color name="nav_neon_lo">#FF5A00</color>
+    <color name="on_neon">#1A0A00</color>
+    <color name="dock_glass_top">#F2FFFFFF</color>
+    <color name="dock_glass_bottom">#DEFFFFFF</color>
+    <color name="dock_glass_edge">#33FF6B00</color>
+    <color name="dock_glass_sheen">#99FFFFFF</color>
+
+    <!-- Dock selection pill: frosted glass lens -->
+    <color name="pill_glass_top">#B3FFFFFF</color>
+    <color name="pill_glass_bottom">#33FFFFFF</color>
+    <color name="pill_highlight">#F2FFFFFF</color>
+    <color name="pill_shadow">#4DFF6B00</color>
+
+    <!-- "Protect my whole phone" in light mode: white card, orange used only as an accent -->
+    <color name="protect_start">#FFF3E8</color>
+    <color name="protect_end">#FFFFFF</color>
+    <color name="protect_stroke">#66FF6B00</color>
+    <color name="protect_ripple">#1FFF6B00</color>
+    <color name="protect_title">#111413</color>
+    <color name="protect_sub">#5F6763</color>
+    <color name="protect_icon_bg">#1FFF6B00</color>
+    <color name="protect_icon">#FF6B00</color>
 </resources>

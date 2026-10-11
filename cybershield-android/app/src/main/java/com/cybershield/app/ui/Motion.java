@@ -43,7 +43,10 @@ public final class Motion {
                     try { enter(a); } catch (Throwable ignored) { /* motion must never break a screen */ }
                 }
             }
-            @Override public void onActivityCreated(Activity a, Bundle b) { }
+            @Override public void onActivityCreated(Activity a, Bundle b) {
+                // recreated (theme switch, rotation): content is already familiar, don't replay the entrance
+                if (b != null) SEEN.add(a);
+            }
             @Override public void onActivityResumed(Activity a) { }
             @Override public void onActivityPaused(Activity a) { }
             @Override public void onActivityStopped(Activity a) { }

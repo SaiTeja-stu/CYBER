@@ -1,50 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Loading screen is always orange-on-white, independent of the in-app light/dark choice -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_gradient">
+    android:background="@color/splash_bg">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:layout_marginBottom="40dp"
+        android:gravity="center"
+        android:orientation="vertical">
 
         <ImageView
             android:id="@+id/logo"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
-            android:src="@drawable/ic_logo"
-            android:contentDescription="@string/app_name" />
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/ic_logo" />
 
-        <TextView
+        <com.cybershield.app.ui.SplitTextView
             android:id="@+id/wordmark"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="@string/app_name"
-            android:textColor="@color/text"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.02" />
-
-        <TextView
-            android:id="@+id/tagline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Starting protection engine…"
-            android:textColor="@color/muted"
-            android:textSize="13sp" />
+            android:layout_marginTop="10dp"
+            android:contentDescription="SecureMe" />
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/spin"
-        style="?android:attr/progressBarStyleSmall"
+    <LinearLayout
+        android:id="@+id/loaderRow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="56dp"
-        android:indeterminateTint="@color/sky" />
+        android:layout_marginBottom="64dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.cybershield.app.ui.LatticeLoaderView
+            android:id="@+id/lattice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/loaderLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Starting protection engine"
+            android:textColor="@color/splash_ink"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium" />
+
+        <TextView
+            android:id="@+id/loaderTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:alpha="0.6"
+            android:fontFamily="monospace"
+            android:text="0.0s"
+            android:textColor="@color/splash_ink"
+            android:textSize="12sp" />
+    </LinearLayout>
 </FrameLayout>

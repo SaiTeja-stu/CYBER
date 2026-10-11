@@ -62,7 +62,7 @@
                     android:layout_marginTop="6dp"
                     android:textColor="@color/muted"
                     android:textSize="11sp"
-                    android:text="tap the circle for confidence / signs" />
+                    android:text="Tap the circle for more detail" />
             </LinearLayout>
         </LinearLayout>
 
@@ -108,7 +108,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Why"
+            android:text="Why we think so"
             android:textColor="@color/muted"
             android:textStyle="bold" />
 

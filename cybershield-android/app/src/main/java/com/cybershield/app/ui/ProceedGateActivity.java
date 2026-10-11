@@ -1,10 +1,15 @@
 package com.cybershield.app.ui;
 
+import android.app.Activity;
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.FragmentActivity;
 
 import com.cybershield.app.data.Repository;
@@ -15,6 +20,11 @@ import com.cybershield.app.shield.ShieldPrefs;
  * Friction gate for "continue anyway" on a Secure Me warning. The user must confirm with their fingerprint /
  * face / device PIN before the block is lifted, so nobody can tap straight through a warning (and a child or
  * someone borrowing the phone can't either).
+ *
+ * <p>Some OEM builds report {@link BiometricGate#available} as false even when the device has a real PIN,
+ * pattern or password set (a known androidx.biometric quirk combining BIOMETRIC_STRONG with
+ * DEVICE_CREDENTIAL). When that happens we fall back to the system's own "confirm device credential" screen
+ * instead of silently letting the user through - a warning must always require some confirmation.
  *
  * <p>On success: the site is allowed for 30 minutes, a dangerous-site block is reopened in the browser, and - for
  * high / very-high risk - the site address (no query string) and score are reported to the Secure Me dashboard.
@@ -30,6 +40,8 @@ public class ProceedGateActivity extends FragmentActivity {
     private int score;
     private boolean reopen;
 
+    private ActivityResultLauncher<Intent> credentialLauncher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,15 +53,35 @@ public class ProceedGateActivity extends FragmentActivity {
         score = in == null ? 0 : in.getIntExtra(OverlayService.EX_SCORE, 0);
         reopen = in != null && in.getBooleanExtra(OverlayService.EX_HARD, false);   // hard block replaced the page
 
-        if (!BiometricGate.available(this)) {
-            if (reopen) {
-                // a dangerous site can only be opened with a screen lock to confirm against
-                Toast.makeText(this, "Set a screen lock (PIN, pattern or fingerprint) to continue past a "
-                        + "dangerous-site warning.", Toast.LENGTH_LONG).show();
-                finishAndRemoveTask();
+        credentialLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                proceed();
             } else {
-                proceed();   // soft warning and nothing to confirm with: keep the old behaviour
+                Toast.makeText(this, "Not confirmed - staying on the safe side.", Toast.LENGTH_SHORT).show();
+                finishAndRemoveTask();   // warning overlay stays up
             }
+        });
+
+        boolean deviceHasLock = isDeviceSecure(this);
+
+        if (!BiometricGate.available(this)) {
+            if (deviceHasLock) {
+                // BiometricPrompt is unavailable on this OEM build but a real screen lock exists:
+                // fall back to the system's own PIN / pattern / password confirmation screen.
+                KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+                Intent confirm = km == null ? null : km.createConfirmDeviceCredentialIntent(
+                        "Continue to this site?",
+                        "Secure Me flagged it (risk " + score + "/100). Confirm to proceed anyway.");
+                if (confirm != null) {
+                    credentialLauncher.launch(confirm);
+                    return;
+                }
+            }
+            // No screen lock at all: a warning can never be bypassed without something to confirm with,
+            // whether it replaced the page (hard) or not (soft) - always block, never proceed silently.
+            Toast.makeText(this, "Set a screen lock (PIN, pattern or fingerprint) to continue past a "
+                    + "Secure Me warning.", Toast.LENGTH_LONG).show();
+            finishAndRemoveTask();
             return;
         }
 
@@ -64,6 +96,15 @@ public class ProceedGateActivity extends FragmentActivity {
                         finishAndRemoveTask();   // warning overlay stays up
                     }
                 });
+    }
+
+    private static boolean isDeviceSecure(Context ctx) {
+        try {
+            KeyguardManager km = (KeyguardManager) ctx.getSystemService(Context.KEYGUARD_SERVICE);
+            return km != null && km.isDeviceSecure();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private void proceed() {

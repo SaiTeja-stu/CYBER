@@ -5,8 +5,8 @@
         <shape android:shape="oval">
             <gradient
                 android:angle="135"
-                android:startColor="#2BE283"
-                android:endColor="#12B85F"
+                android:startColor="@color/nav_neon_hi"
+                android:endColor="@color/nav_neon_lo"
                 android:type="linear" />
             <stroke
                 android:width="3.5dp"

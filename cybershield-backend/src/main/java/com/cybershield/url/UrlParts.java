@@ -66,16 +66,47 @@ public final class UrlParts {
     public boolean isHttps() { return "https".equals(scheme); }
     public boolean schemeInferred() { return schemeInferred; }
 
-    /** The registrable-ish domain: last two labels (best-effort, no PSL). */
+    private static final java.util.Set<String> TWO_PART_SUFFIXES = java.util.Set.of(
+            "bank.in", "co.in", "com.in", "net.in", "org.in", "gen.in", "firm.in", "ind.in",
+            "nic.in", "ac.in", "edu.in", "res.in", "gov.in", "mil.in",
+            "co.uk", "org.uk", "me.uk", "ltd.uk", "plc.uk", "net.uk", "gov.uk", "ac.uk", "police.uk", "nhs.uk",
+            "com.au", "net.au", "org.au", "edu.au", "gov.au",
+            "co.nz", "net.nz", "org.nz", "govt.nz", "ac.nz",
+            "co.jp", "ne.jp", "or.jp", "ac.jp", "go.jp",
+            "com.br", "net.br", "org.br", "gov.br",
+            "co.za", "net.za", "org.za", "gov.za",
+            "com.sg", "net.sg", "org.sg", "gov.sg",
+            "gc.ca"
+    );
+
+    /** The registrable domain: accounts for multi-part ccSLDs (e.g. bank.in, co.in, gov.in). */
     public String baseDomain() {
         String[] labels = host.split("\\.");
         if (labels.length <= 2) return host;
-        return labels[labels.length - 2] + "." + labels[labels.length - 1];
+        String last2 = labels[labels.length - 2] + "." + labels[labels.length - 1];
+        if (TWO_PART_SUFFIXES.contains(last2) && labels.length >= 3) {
+            return labels[labels.length - 3] + "." + last2;
+        }
+        return last2;
+    }
+
+    public String registrableDomain() {
+        return baseDomain();
+    }
+
+    public String domainLabel() {
+        String base = baseDomain();
+        int dot = base.indexOf('.');
+        return dot > 0 ? base.substring(0, dot) : base;
+    }
+
+    public boolean isPunycode() {
+        return host.contains("xn--");
     }
 
     public boolean hostIsIpLiteral() {
         return host.matches("^\\d{1,3}(\\.\\d{1,3}){3}$")
                 || host.startsWith("[")
-                || host.matches("^[0-9a-fA-F:]+$") && host.contains(":");
+                || (host.matches("^[0-9a-fA-F:]+$") && host.contains(":"));
     }
 }

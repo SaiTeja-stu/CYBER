@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private EduAdapter eduAdapter;
     private boolean unlocked = false;
     private boolean isAdmin = false;
+    private ThemeTransition.Reveal themeReveal;
 
     private final Handler main = new Handler(Looper.getMainLooper());
 
@@ -51,8 +52,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         store = CyberShieldApp.get().api().store();
+        // survive the recreate triggered by the theme toggle without re-prompting for biometrics
+        if (savedInstanceState != null) unlocked = savedInstanceState.getBoolean("unlocked", false);
         b = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(b.getRoot());
+
+        themeReveal = ThemeTransition.cover(this, b.getRoot());
+        if (themeReveal != null) main.postDelayed(this::startThemeReveal, 450);   // fallback if stats are slow
+
+        b.swTheme.setChecked(CyberShieldApp.get().isDarkMode());
+        b.swTheme.setOnCheckedChangeListener((v, dark) -> {
+            v.setEnabled(false);
+            ThemeTransition.capture(this, v, () -> CyberShieldApp.get().setDarkMode(dark));
+        });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -99,22 +111,19 @@ public class MainActivity extends AppCompatActivity {
 
         setupBottomNav();
 
-        b.swBiometric.setChecked(store.biometricLock());
-        b.swBiometric.setOnCheckedChangeListener((v, checked) -> {
-            if (checked && !BiometricGate.available(this)) {
-                b.swBiometric.setChecked(false);
-                b.greeting.setText("Set up a fingerprint or screen lock first, then enable this.");
-                return;
-            }
-            store.setBiometricLock(checked);
-        });
-
         loadEducation();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@androidx.annotation.NonNull Bundle out) {
+        super.onSaveInstanceState(out);
+        out.putBoolean("unlocked", unlocked);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        b.customBottomBar.travelTo(0);   // coming back from Vault/Reports/Academy: slide home to Shield
         requestBatteryExemption();
 
         // Any session at all (access OR long-lived refresh token) is enough to proceed;
@@ -139,11 +148,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupBottomNav() {
-        b.tabShield.setOnClickListener(v -> b.scroll.smoothScrollTo(0, 0));
-        b.tabVault.setOnClickListener(v -> startActivity(new Intent(this, QueueActivity.class).putExtra("admin", isAdmin)));
+        b.customBottomBar.setup(
+                new View[]{b.tabShield, b.tabVault, b.tabReports, b.tabAcademy},
+                new android.widget.ImageView[]{b.iconShield, b.iconVault, b.iconReports, b.iconAcademy},
+                new android.widget.TextView[]{b.textShield, b.textVault, b.textReports, b.textAcademy},
+                getColor(R.color.nav_neon), getColor(R.color.nav_neon_idle),
+                getColor(R.color.nav_neon_soft), getColor(R.color.nav_neon_edge),
+                this::openTab);
         b.btnCenterScan.setOnClickListener(v -> startActivity(new Intent(this, AnalyzeConsoleActivity.class)));
-        b.tabReports.setOnClickListener(v -> startActivity(new Intent(this, isAdmin ? ReportsActivity.class : HistoryActivity.class)));
-        b.tabAcademy.setOnClickListener(v -> startActivity(new Intent(this, EducationListActivity.class)));
+    }
+
+    private void openTab(int index) {
+        switch (index) {
+            case 0: b.scroll.smoothScrollTo(0, 0); break;
+            case 1: startActivity(new Intent(this, QueueActivity.class).putExtra("admin", isAdmin)); break;
+            case 2: startActivity(new Intent(this, isAdmin ? ReportsActivity.class : HistoryActivity.class)); break;
+            case 3: startActivity(new Intent(this, EducationListActivity.class)); break;
+        }
     }
 
     /** Ask the backend whether this account is an admin; show overview button if so. */
@@ -228,12 +249,26 @@ public class MainActivity extends AppCompatActivity {
             List<ScanEntity> recent = rows.subList(0, Math.min(6, rows.size()));
             final int ft = total, fth = threats;
             main.post(() -> {
-                Motion.countUp(b.statChecks, ft);
-                Motion.countUp(b.statThreats, fth);
+                if (themeReveal != null) {
+                    // mid theme switch: show final values and let the reveal carry the motion
+                    b.statChecks.setText(String.valueOf(ft));
+                    b.statThreats.setText(String.valueOf(fth));
+                } else {
+                    Motion.countUp(b.statChecks, ft);
+                    Motion.countUp(b.statThreats, fth);
+                }
                 recentAdapter.set(recent);
                 b.recentEmpty.setVisibility(recent.isEmpty() ? View.VISIBLE : View.GONE);
+                // reveal once the list has laid out, so nothing shifts during the animation
+                if (themeReveal != null) b.getRoot().post(this::startThemeReveal);
             });
         });
+    }
+
+    private void startThemeReveal() {
+        if (themeReveal == null) return;
+        themeReveal.start();
+        themeReveal = null;
     }
 
     private void loadEducation() {

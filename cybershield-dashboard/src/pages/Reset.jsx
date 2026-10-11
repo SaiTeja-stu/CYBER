@@ -13,7 +13,7 @@ export default function Reset() {
   const [ok, setOk] = useState(false);
 
   useEffect(() => {
-    document.title = 'Reset Password — Cyber Shield';
+    document.title = 'Reset password · SecureMe';
   }, []);
 
   async function submit(e) {
@@ -22,10 +22,10 @@ export default function Reset() {
     setMsg('');
     try {
       const r = await api.resetPassword(email.trim(), code.trim(), pw);
-      setMsg(r.message || 'Password updated.');
+      setMsg(r.message || 'All set. Your password has been changed.');
       setOk(true);
     } catch (err) {
-      setMsg(err.message || 'That code is invalid or has expired.');
+      setMsg(err.message || "That code didn't work. It may have expired, so ask for a new one.");
       setOk(false);
     } finally {
       setBusy(false);
@@ -42,15 +42,15 @@ export default function Reset() {
             </div>
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-white">Reset Account Password</h1>
-            <p className="text-xs text-slate-400">Cyber Shield Security Recovery Protocol</p>
+            <h1 className="text-2xl tracking-tight text-white">Choose a new password</h1>
+            <p className="mt-1 text-sm text-slate-400">Enter the 6-digit code we emailed you.</p>
           </div>
         </div>
 
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Email Address
+            <label className="mb-1.5 block text-sm font-medium text-slate-300">
+              Email
             </label>
             <div className="relative">
               <Mail className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
@@ -63,8 +63,8 @@ export default function Reset() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">
-              6-Digit Security Code
+            <label className="mb-1.5 block text-sm font-medium text-slate-300">
+              6-digit code
             </label>
             <div className="relative">
               <KeyRound className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
@@ -78,8 +78,8 @@ export default function Reset() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-400">
-              New Password (12+ chars)
+            <label className="mb-1.5 block text-sm font-medium text-slate-300">
+              New password (at least 12 characters)
             </label>
             <div className="relative">
               <Lock className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
@@ -108,16 +108,16 @@ export default function Reset() {
           {ok ? (
             <a
               href="/"
-              className="flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-cyber-accent to-cyber-indigo py-3 text-sm font-bold text-slate-950 transition-all hover:opacity-90 shadow-cyber-glow"
+              className="btn-primary w-full"
             >
-              Return to Console Sign In
+              Back to sign in
             </a>
           ) : (
             <button
               disabled={busy || pw.length < 12 || code.length !== 6}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyber-accent to-cyber-indigo py-3 text-sm font-bold text-slate-950 transition-all hover:opacity-90 disabled:opacity-50 shadow-cyber-glow"
+              className="btn-primary w-full"
             >
-              {busy && <Spinner className="h-4 w-4 text-slate-950" />} Update Account Password
+              {busy && <Spinner className="h-4 w-4 !text-paper" />} Save new password
             </button>
           )}
         </form>

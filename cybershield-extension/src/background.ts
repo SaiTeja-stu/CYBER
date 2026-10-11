@@ -1,12 +1,18 @@
 import { analyze, AuthError } from './api';
-import type { AnalyzeResponse, BgMessage, PageContext, PageVerdict, RiskLevel } from './types';
+import type { AnalyzeResponse, BgMessage, ExtensionVerdict, PageContext, PageVerdict } from './types';
 
-const BADGE: Record<RiskLevel, { text: string; color: string }> = {
-  SAFE: { text: '', color: '#34D399' },
-  SUSPICIOUS: { text: '!', color: '#FDE047' },
-  HIGH_RISK: { text: '!!', color: '#FB923C' },
-  MALICIOUS: { text: '✕', color: '#F87171' },
+const VERDICT_BADGE: Record<ExtensionVerdict, { text: string; color: string }> = {
+  UNSAFE: { text: '✕', color: '#EF4444' },
+  FRAUD: { text: '!', color: '#F97316' },
+  SUSPICIOUS: { text: '▲', color: '#EAB308' },
+  UNVERIFIED: { text: '?', color: '#6B7280' },
+  NO_KNOWN_THREATS: { text: 'i', color: '#3B82F6' },
+  SAFE_SIGNALS_FOUND: { text: '✓', color: '#10B981' },
 };
+
+// In-memory set of explicitly user-allowed hosts (session-isolated, immune to webpage DOM/sessionStorage tampering)
+const allowedHosts = new Map<string, number>();
+const ALLOW_DURATION_MS = 30 * 60 * 1000;
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
@@ -82,14 +88,15 @@ async function checkPage(ctx: PageContext, tabId: number | undefined): Promise<P
     ctx.html.length > 40
       ? { type: 'WEBPAGE', content: ctx.html, pageUrl: ctx.url, source: 'auto' }
       : { type: 'URL', content: ctx.url, source: 'auto' },
+    { pageHtml: ctx.html, pageTitle: ctx.title }
   );
   if (tabId !== undefined) {
-    const badge = BADGE[r.riskLevel];
+    const badge = VERDICT_BADGE[r.verdict];
     chrome.action.setBadgeText({ tabId, text: badge.text });
     chrome.action.setBadgeBackgroundColor({ tabId, color: badge.color });
   }
-  const reasons = r.signals.filter((s) => s.weight > 0).map((s) => `${s.name}: ${s.detail}`).slice(0, 4);
-  return { level: r.riskLevel, score: r.riskScore, reasons };
+  const reasons = [r.verdictTitle, r.verdictReason];
+  return { verdict: r.verdict, level: r.riskLevel, score: r.riskScore, reasons };
 }
 
 chrome.runtime.onMessage.addListener((msg: BgMessage, sender, sendResponse) => {
@@ -98,6 +105,14 @@ chrome.runtime.onMessage.addListener((msg: BgMessage, sender, sendResponse) => {
       case 'PAGE_LOADED':
         if (!/^https?:/.test(msg.ctx.url)) return sendResponse(null);
         return sendResponse(await checkPage(msg.ctx, sender.tab?.id));
+      case 'CHECK_HOST_ALLOWED': {
+        const exp = allowedHosts.get(msg.hostname) || 0;
+        return sendResponse({ allowed: exp > Date.now() });
+      }
+      case 'SET_HOST_ALLOWED': {
+        allowedHosts.set(msg.hostname, Date.now() + ALLOW_DURATION_MS);
+        return sendResponse({ ok: true });
+      }
       case 'HAS_OVERRIDE':
         return sendResponse({ set: await hasOverride() });
       case 'SET_OVERRIDE':
@@ -126,13 +141,13 @@ function notify(r: AnalyzeResponse, subject: string): void {
   chrome.notifications.create({
     type: 'basic',
     iconUrl: 'icons/icon128.png',
-    title: `${r.priority} · ${r.riskLevel.replace('_', ' ')} (${r.riskScore}/100)`,
-    message: `${subject}\n\n${r.explanation}`.slice(0, 400),
-    priority: r.riskLevel === 'MALICIOUS' ? 2 : 1,
+    title: `${r.verdictTitle} (${r.riskScore}/100)`,
+    message: `${subject}\n\n${r.verdictReason}`.slice(0, 400),
+    priority: r.verdict === 'UNSAFE' || r.verdict === 'FRAUD' ? 2 : 1,
   });
 }
 
 function notifyError(e: unknown): void {
   const msg = e instanceof AuthError ? e.message : e instanceof Error ? e.message : 'Check failed';
-  chrome.notifications.create({ type: 'basic', iconUrl: 'icons/icon128.png', title: 'Secure Me', message: msg });
+  chrome.notifications.create({ type: 'basic', iconUrl: 'icons/icon128.png', title: 'CyberShield', message: msg });
 }

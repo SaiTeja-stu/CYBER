@@ -25,7 +25,8 @@ public class PiracyGamblingPolicy extends AbstractPolicy {
             + "|moviesflix|vegamovies|hdhub4u|bolly4u|khatrimaza|mkvcinemas|worldfree4u|7starhd|jiorockers|ibomma"
             + "|kuttymovies|1337x|thepiratebay|piratebay|fmovies|soap2day|123movies|putlocker|tamilblasters|movies4u"
             + "|moviesda|klwap|desiremovies|mp4moviez|cinevood|skymovieshd|hindilinks4u|7movierulz|5movierulz|4movierulz"
-            + "|moviezwap|jalshamoviez|okjatt|djpunjab|mp3juice|yts[.]mx|rarbg|nyaa[.]si|limetorrents|torrentz|kickass)",
+            + "|moviezwap|jalshamoviez|okjatt|djpunjab|mp3juice|yts[.]mx|rarbg|nyaa[.]si|limetorrents|torrentz|kickass"
+            + "|net77|netmirror)",
             Pattern.CASE_INSENSITIVE);
 
     private static final Pattern PIRACY_NAME = Pattern.compile(

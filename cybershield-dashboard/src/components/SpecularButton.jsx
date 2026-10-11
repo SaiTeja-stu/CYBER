@@ -182,6 +182,14 @@ const SpecularButton = ({
 
     const lineC = new Color();
     const baseC = new Color();
+    // the shine is white; the soft edge takes the theme accent (follows light/dark switches)
+    const readAccent = () => {
+      const parts = getComputedStyle(document.documentElement).getPropertyValue('--accent-2').trim().split(/\s+/).map(Number);
+      return parts.length === 3 && parts.every((n) => !Number.isNaN(n)) ? parts.map((n) => n / 255) : [1, 0.6, 0.24];
+    };
+    let accentRgb = readAccent();
+    const themeObs = new MutationObserver(() => { accentRgb = readAccent(); });
+    themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
     const update = now => {
       raf = requestAnimationFrame(update);
@@ -199,8 +207,8 @@ const SpecularButton = ({
       bright += (brightTarget - bright) * (1 - Math.exp(-dt * 8));
 
       try {
-        lineC.set(p.lineColor);
-        baseC.set(p.baseColor);
+        lineC.set('#ffffff');
+        baseC.set(accentRgb[0], accentRgb[1], accentRgb[2]);
         program.uniforms.uAngle.value = angle;
         program.uniforms.uRadius.value = Math.min(p.radius, Math.min(sizeRef.w, sizeRef.h) / 2) * dpr;
         program.uniforms.uLineColor.value = [lineC.r, lineC.g, lineC.b];
@@ -218,6 +226,7 @@ const SpecularButton = ({
 
     return () => {
       cancelAnimationFrame(raf);
+      themeObs.disconnect();
       ro.disconnect();
       window.removeEventListener('pointermove', onPointerMove);
       if (gl.canvas && gl.canvas.parentNode === fx) fx.removeChild(gl.canvas);
@@ -234,10 +243,7 @@ const SpecularButton = ({
       className={`specular-button specular-button--${size}${className ? ` ${className}` : ''}`}
       style={{
         '--sb-radius': `${radius}px`,
-        '--sb-tint': tint,
-        '--sb-tint-opacity': tintOpacity,
-        '--sb-blur': `${blur}px`,
-        '--sb-text-color': textColor
+        '--sb-blur': `${blur}px`
       }}
     >
       <span ref={fxRef} className="specular-button__fx" aria-hidden="true" />

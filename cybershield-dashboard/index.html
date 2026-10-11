@@ -2,9 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/jpeg" href="/logo.jpg" />
+    <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cyber Shield — Detection Dashboard</title>
+    <title>SecureMe Admin</title>
+    <script>
+      // apply the saved theme before first paint so there is no light/dark flash
+      try {
+        if (localStorage.getItem('secureme.theme') === 'dark') document.documentElement.dataset.theme = 'dark';
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

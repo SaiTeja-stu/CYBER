@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -18,7 +18,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cybershield.app.CyberShieldApp;
+import com.cybershield.app.R;
 import com.cybershield.app.data.EducationCatalog;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -39,7 +41,7 @@ public class EduDetailActivity extends AppCompatActivity {
     private String moduleId;
     private String lang = "en";
 
-    private Button listenBtn;
+    private MaterialButton listenBtn;
     private LinearLayout body;
     private ScrollView scroll;
 
@@ -137,65 +139,259 @@ public class EduDetailActivity extends AppCompatActivity {
         String summary = or(m.summary, "");
         List<String> doThis = m.safeActions();
         List<String> redFlags = m.redFlags == null ? new ArrayList<>() : m.redFlags;
+        int accent = getColor(R.color.cyber_emerald);
 
+        // hero: icon in a soft circle, title, one-line summary
+        FrameLayout halo = new FrameLayout(this);
+        halo.setBackground(round(getColor(R.color.nav_neon_soft), dp(48), 0, 0));
+        LinearLayout.LayoutParams hp = new LinearLayout.LayoutParams(dp(96), dp(96));
+        hp.gravity = Gravity.CENTER_HORIZONTAL;
+        hp.topMargin = dp(8);
+        halo.setLayoutParams(hp);
         ImageView ic = new ImageView(this);
         ic.setImageResource(EduAdapter.iconFor(moduleId));
-        LinearLayout.LayoutParams icp = new LinearLayout.LayoutParams(dp(72), dp(72));
-        icp.gravity = Gravity.CENTER_HORIZONTAL;
-        icp.topMargin = dp(6);
-        ic.setLayoutParams(icp);
-        body.addView(ic);
+        halo.addView(ic, new FrameLayout.LayoutParams(dp(52), dp(52), Gravity.CENTER));
+        body.addView(halo);
 
-        body.addView(centre(title, 24, true, com.cybershield.app.R.color.text));
+        TextView t = centre(title, 24, true, R.color.text);
+        t.setPadding(dp(8), dp(14), dp(8), 0);
+        body.addView(t);
+        if (!summary.isEmpty()) {
+            TextView sv = centre(summary, 15, false, R.color.muted);
+            sv.setPadding(dp(12), dp(6), dp(12), 0);
+            sv.setLineSpacing(dp(2), 1f);
+            body.addView(sv);
+        }
 
-        listenBtn = new Button(this);
-        listenBtn.setText("▶  " + s(lang, "Listen", "వినండి", "सुनें"));
-        listenBtn.setTextSize(18);
+        listenBtn = new MaterialButton(this);
+        listenBtn.setText(listenLabel());
+        listenBtn.setTextSize(14);
         listenBtn.setAllCaps(false);
-        listenBtn.setBackgroundTintList(getColorStateList(com.cybershield.app.R.color.sky));
-        listenBtn.setTextColor(getColor(com.cybershield.app.R.color.ink));
+        listenBtn.setCornerRadius(dp(24));
+        listenBtn.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getColor(R.color.nav_neon_soft)));
+        listenBtn.setTextColor(accent);
         listenBtn.setEnabled(ttsReady);
         LinearLayout.LayoutParams lbp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        lbp.topMargin = dp(12);
+                LinearLayout.LayoutParams.WRAP_CONTENT, dp(46));
+        lbp.gravity = Gravity.CENTER_HORIZONTAL;
+        lbp.topMargin = dp(14);
         listenBtn.setLayoutParams(lbp);
         listenBtn.setOnClickListener(v -> toggleSpeak());
         body.addView(listenBtn);
 
+        // the one rule to remember
         if (!rule.isEmpty()) {
-            TextView box = new TextView(this);
-            box.setText(rule);
-            box.setTextSize(19);
-            box.setTypeface(Typeface.DEFAULT_BOLD);
-            box.setTextColor(getColor(com.cybershield.app.R.color.text));
-            box.setPadding(dp(16), dp(16), dp(16), dp(16));
-            GradientDrawable bg = new GradientDrawable();
-            bg.setColor(0xFF0F2418);
-            bg.setStroke(dp(2), getColor(com.cybershield.app.R.color.sky));
-            bg.setCornerRadius(dp(12));
-            box.setBackground(bg);
-            LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            bp.topMargin = dp(16);
-            box.setLayoutParams(bp);
+            LinearLayout box = card(getColor(R.color.tip_box_bg), accent);
+            box.addView(label(s(lang, "REMEMBER", "గుర్తుంచుకోండి", "याद रखें"), accent));
+            TextView rv = new TextView(this);
+            rv.setText(rule);
+            rv.setTextSize(18);
+            rv.setTypeface(Typeface.DEFAULT_BOLD);
+            rv.setTextColor(getColor(R.color.text));
+            rv.setLineSpacing(dp(2), 1f);
+            rv.setPadding(0, dp(6), 0, 0);
+            box.addView(rv);
             body.addView(box);
         }
-        if (!summary.isEmpty()) {
-            TextView sv = new TextView(this);
-            sv.setText(summary);
-            sv.setTextSize(16);
-            sv.setTextColor(getColor(com.cybershield.app.R.color.muted));
-            sv.setPadding(0, dp(14), 0, dp(2));
-            body.addView(sv);
+
+        // what to do: numbered steps
+        if (!doThis.isEmpty()) {
+            body.addView(heading(s(lang, "What to do", "ఏం చేయాలి", "क्या करें")));
+            LinearLayout steps = card(getColor(R.color.cyber_card_bg), getColor(R.color.cyber_card_stroke));
+            for (int i = 0; i < doThis.size(); i++) steps.addView(step(i + 1, doThis.get(i), i > 0));
+            body.addView(steps);
         }
 
-        body.addView(heading(s(lang, "DO THIS", "ఇలా చేయండి", "यह करें"), com.cybershield.app.R.color.risk_safe));
-        for (String d : doThis) body.addView(pointLine("✓  ", d, com.cybershield.app.R.color.risk_safe));
-        body.addView(heading(s(lang, "DANGER SIGNS", "ప్రమాద సంకేతాలు", "ख़तरे के संकेत"), com.cybershield.app.R.color.risk_malicious));
-        for (String f : redFlags) body.addView(pointLine("✗  ", f, com.cybershield.app.R.color.risk_malicious));
+        // warning signs: what the scammer actually says
+        if (!redFlags.isEmpty()) {
+            body.addView(heading(s(lang, "If you hear this, it's a scam",
+                    "ఇలా వినిపిస్తే, అది మోసం", "ऐसा सुनें, तो यह धोखा है")));
+            for (String f : redFlags) body.addView(bubble(f));
+        }
+
+        body.addView(helpCard());
+        View next = nextLessonCard();
+        if (next != null) body.addView(next);
 
         speech = buildSpeech(title, rule, doThis, redFlags);
         scroll.scrollTo(0, 0);
+    }
+
+    private String listenLabel() {
+        return "▶   " + s(lang, "Listen to this lesson", "ఈ పాఠం వినండి", "यह पाठ सुनें");
+    }
+
+    private View step(int n, String text, boolean divider) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setPadding(0, divider ? dp(12) : 0, 0, 0);
+        TextView num = new TextView(this);
+        num.setText(String.valueOf(n));
+        num.setGravity(Gravity.CENTER);
+        num.setTextSize(13);
+        num.setTypeface(Typeface.DEFAULT_BOLD);
+        num.setTextColor(getColor(R.color.on_accent));
+        num.setBackground(round(getColor(R.color.cyber_emerald), dp(13), 0, 0));
+        LinearLayout.LayoutParams np = new LinearLayout.LayoutParams(dp(26), dp(26));
+        np.topMargin = dp(1);
+        row.addView(num, np);
+        TextView tv = new TextView(this);
+        tv.setText(text);
+        tv.setTextSize(16);
+        tv.setLineSpacing(dp(3), 1f);
+        tv.setTextColor(getColor(R.color.text));
+        LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        tp.leftMargin = dp(12);
+        row.addView(tv, tp);
+        return row;
+    }
+
+    private View bubble(String text) {
+        TextView tv = new TextView(this);
+        tv.setText(text);
+        tv.setTextSize(15.5f);
+        tv.setLineSpacing(dp(2), 1f);
+        tv.setTextColor(getColor(R.color.text));
+        tv.setPadding(dp(16), dp(12), dp(16), dp(12));
+        int red = getColor(R.color.risk_malicious);
+        tv.setBackground(round((red & 0x00FFFFFF) | 0x1A000000, dp(16), dp(1), (red & 0x00FFFFFF) | 0x4D000000));
+        tv.setCompoundDrawablePadding(dp(10));
+        android.graphics.drawable.Drawable warn = getDrawable(R.drawable.ic_warning);
+        if (warn != null) {
+            warn = warn.mutate();
+            warn.setTint(red);
+            warn.setBounds(0, 0, dp(18), dp(18));
+            tv.setCompoundDrawablesRelative(warn, null, null, null);
+        }
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        p.topMargin = dp(8);
+        tv.setLayoutParams(p);
+        return tv;
+    }
+
+    /** What to do if it already happened: the national helpline, one tap away. */
+    private View helpCard() {
+        LinearLayout box = card(getColor(R.color.cyber_card_bg), getColor(R.color.cyber_card_stroke));
+        ((LinearLayout.LayoutParams) box.getLayoutParams()).topMargin = dp(24);
+        TextView h = new TextView(this);
+        h.setText(s(lang, "Lost money or shared a code?", "డబ్బు పోయిందా లేదా కోడ్ చెప్పారా?",
+                "पैसे गए या कोड बता दिया?"));
+        h.setTextSize(16);
+        h.setTypeface(Typeface.DEFAULT_BOLD);
+        h.setTextColor(getColor(R.color.text));
+        box.addView(h);
+        TextView bodyTv = new TextView(this);
+        bodyTv.setText(s(lang,
+                "Call 1930 straight away. It's the national cyber-crime helpline, and the sooner you call, the better the chance of getting your money back.",
+                "వెంటనే 1930కి కాల్ చేయండి. ఇది జాతీయ సైబర్ క్రైమ్ హెల్ప్‌లైన్. ఎంత త్వరగా కాల్ చేస్తే, డబ్బు తిరిగి వచ్చే అవకాశం అంత ఎక్కువ.",
+                "तुरंत 1930 पर कॉल करें। यह राष्ट्रीय साइबर अपराध हेल्पलाइन है, और जितनी जल्दी कॉल करेंगे, पैसे वापस मिलने की संभावना उतनी ज़्यादा।"));
+        bodyTv.setTextSize(14);
+        bodyTv.setLineSpacing(dp(2), 1f);
+        bodyTv.setTextColor(getColor(R.color.muted));
+        bodyTv.setPadding(0, dp(4), 0, dp(12));
+        box.addView(bodyTv);
+
+        LinearLayout actions = new LinearLayout(this);
+        actions.setOrientation(LinearLayout.HORIZONTAL);
+        MaterialButton call = new MaterialButton(this);
+        call.setText(s(lang, "Call 1930", "1930కి కాల్ చేయండి", "1930 पर कॉल करें"));
+        call.setAllCaps(false);
+        call.setCornerRadius(dp(22));
+        call.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getColor(R.color.cyber_emerald)));
+        call.setTextColor(getColor(R.color.on_accent));
+        call.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_DIAL, android.net.Uri.parse("tel:1930"))));
+        actions.addView(call, new LinearLayout.LayoutParams(0, dp(46), 1f));
+        MaterialButton report = new MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+        report.setText(s(lang, "Report online", "ఆన్‌లైన్‌లో ఫిర్యాదు", "ऑनलाइन शिकायत"));
+        report.setAllCaps(false);
+        report.setCornerRadius(dp(22));
+        report.setTextColor(getColor(R.color.cyber_emerald));
+        report.setStrokeColor(android.content.res.ColorStateList.valueOf(getColor(R.color.cyber_card_stroke)));
+        report.setOnClickListener(v -> {
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://cybercrime.gov.in")));
+            } catch (android.content.ActivityNotFoundException ignored) { }
+        });
+        LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(0, dp(46), 1f);
+        rp.leftMargin = dp(10);
+        actions.addView(report, rp);
+        box.addView(actions);
+        return box;
+    }
+
+    private View nextLessonCard() {
+        List<EduAdapter.Module> all = EducationCatalog.bundled(this, lang);
+        int idx = -1;
+        for (int i = 0; i < all.size(); i++) if (moduleId != null && moduleId.equals(all.get(i).id)) idx = i;
+        LinearLayout box = card(getColor(R.color.cyber_card_bg), getColor(R.color.cyber_card_stroke));
+        ((LinearLayout.LayoutParams) box.getLayoutParams()).topMargin = dp(12);
+        if (idx < 0 || idx + 1 >= all.size()) {
+            TextView done = new TextView(this);
+            done.setText(s(lang, "That's all the lessons. Well done!",
+                    "అన్ని పాఠాలు పూర్తయ్యాయి. బాగా చేశారు!", "सारे पाठ पूरे हुए। शाबाश!"));
+            done.setTextSize(15);
+            done.setTypeface(Typeface.DEFAULT_BOLD);
+            done.setTextColor(getColor(R.color.text));
+            done.setGravity(Gravity.CENTER_HORIZONTAL);
+            box.addView(done);
+            return box;
+        }
+        EduAdapter.Module next = all.get(idx + 1);
+        box.setOrientation(LinearLayout.HORIZONTAL);
+        box.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        texts.addView(label(s(lang, "NEXT LESSON", "తర్వాతి పాఠం", "अगला पाठ"), getColor(R.color.cyber_emerald)));
+        TextView nt = new TextView(this);
+        nt.setText(or(next.title, ""));
+        nt.setTextSize(15.5f);
+        nt.setTypeface(Typeface.DEFAULT_BOLD);
+        nt.setTextColor(getColor(R.color.text));
+        nt.setPadding(0, dp(3), 0, 0);
+        texts.addView(nt);
+        box.addView(texts, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        ImageView chev = new ImageView(this);
+        chev.setImageResource(R.drawable.ic_chevron_right);
+        chev.setColorFilter(getColor(R.color.cyber_emerald));
+        box.addView(chev, new LinearLayout.LayoutParams(dp(22), dp(22)));
+        box.setClickable(true);
+        box.setFocusable(true);
+        box.setOnClickListener(v -> {
+            startActivity(EduDetailActivity.intent(this, next, lang));
+            finish();
+        });
+        return box;
+    }
+
+    private LinearLayout card(int fill, int stroke) {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(dp(18), dp(16), dp(18), dp(16));
+        box.setBackground(round(fill, dp(18), dp(1), stroke));
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        p.topMargin = dp(18);
+        box.setLayoutParams(p);
+        return box;
+    }
+
+    private TextView label(String txt, int color) {
+        TextView t = new TextView(this);
+        t.setText(txt);
+        t.setTextSize(11);
+        t.setTypeface(Typeface.DEFAULT_BOLD);
+        t.setLetterSpacing(0.08f);
+        t.setTextColor(color);
+        return t;
+    }
+
+    private static GradientDrawable round(int fill, int radius, int strokeW, int stroke) {
+        GradientDrawable g = new GradientDrawable();
+        g.setColor(fill);
+        g.setCornerRadius(radius);
+        if (strokeW > 0) g.setStroke(strokeW, stroke);
+        return g;
     }
 
     // ---- text-to-speech --------------------------------------------
@@ -217,7 +413,7 @@ public class EduDetailActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 if (listenBtn != null) {
                     listenBtn.setEnabled(true);
-                    if (fellBack) listenBtn.setText("▶  Listen (English voice)");
+                    if (fellBack) listenBtn.setText("▶   Listen (English voice)");
                 }
                 if (fellBack) Toast.makeText(this,
                         "Voice for this language isn't installed — Settings › Languages › Text-to-speech.",
@@ -230,10 +426,10 @@ public class EduDetailActivity extends AppCompatActivity {
         if (!ttsReady) return;
         if (tts.isSpeaking()) {
             tts.stop();
-            listenBtn.setText("▶  " + s(lang, "Listen", "వినండి", "सुनें"));
+            listenBtn.setText(listenLabel());
         } else {
             tts.speak(speech, TextToSpeech.QUEUE_FLUSH, null, "edu");
-            listenBtn.setText("■  " + s(lang, "Stop", "ఆపండి", "रोकें"));
+            listenBtn.setText("■   " + s(lang, "Stop", "ఆపండి", "रोकें"));
         }
     }
 
@@ -274,25 +470,13 @@ public class EduDetailActivity extends AppCompatActivity {
         return t;
     }
 
-    private TextView heading(String txt, int colorRes) {
+    private TextView heading(String txt) {
         TextView t = new TextView(this);
         t.setText(txt);
         t.setTextSize(18);
         t.setTypeface(Typeface.DEFAULT_BOLD);
-        t.setTextColor(getColor(colorRes));
-        t.setPadding(0, dp(22), 0, dp(8));
-        return t;
-    }
-
-    private View pointLine(String mark, String txt, int colorRes) {
-        TextView t = new TextView(this);
-        android.text.SpannableString ss = new android.text.SpannableString(mark + txt);
-        ss.setSpan(new android.text.style.ForegroundColorSpan(getColor(colorRes)), 0, mark.length(), 0);
-        t.setText(ss);
-        t.setTextSize(17);
-        t.setLineSpacing(dp(3), 1f);
-        t.setTextColor(getColor(com.cybershield.app.R.color.text));
-        t.setPadding(dp(2), dp(7), 0, dp(7));
+        t.setTextColor(getColor(R.color.text));
+        t.setPadding(0, dp(26), 0, dp(2));
         return t;
     }
 

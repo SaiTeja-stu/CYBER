@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit && node build.mjs",
+    "test": "esbuild test/domain_and_verdict.test.mjs --bundle --platform=node --format=esm --outfile=test/bundle.test.mjs && node --test test/bundle.test.mjs",
     "watch": "node build.mjs --watch",
     "typecheck": "tsc --noEmit"
   },

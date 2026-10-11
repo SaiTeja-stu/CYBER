@@ -3,7 +3,7 @@ package com.cybershield.app.net.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Mirrors the backend AnalyzeResponse record. */
+/** Mirrors the backend AnalyzeResponse record with unified evidence fields. */
 public class AnalyzeResponse {
     public String reportId;
     public String contentType;
@@ -22,8 +22,19 @@ public class AnalyzeResponse {
     public PaymentInfo payment;
     public String analyzedAt;
 
+    // Unified evidence-based taxonomy and audit breakdown
+    public String verdict;       // UNSAFE | FRAUD | SUSPICIOUS | UNVERIFIED | NO_KNOWN_THREATS
+    public String checkedHostname;
+    public String registrableDomain;
+    public String finalDestination;
+    public Findings findings;
+    public List<String> checksRun = new ArrayList<>();
+    public List<String> checksFailed = new ArrayList<>();
+    public AiAnalysis aiAnalysis;
+
     public boolean isBlocking() {
-        return "MALICIOUS".equals(riskLevel) || "HIGH_RISK".equals(riskLevel);
+        return "UNSAFE".equals(verdict) || "FRAUD".equals(verdict)
+                || "MALICIOUS".equals(riskLevel) || "HIGH_RISK".equals(riskLevel);
     }
 
     public static class Signal {
@@ -43,5 +54,43 @@ public class AnalyzeResponse {
         public String currency;
         public String note;
         public boolean pullPayment;
+    }
+
+    public static class Findings {
+        public Dimension technicalThreat;
+        public BrandDimension brandAuthenticity;
+        public ScamDimension scamEvidence;
+        public ContentDimension contentAdvisory;
+    }
+
+    public static class Dimension {
+        public String status;
+        public String details;
+        public List<String> evidence = new ArrayList<>();
+    }
+
+    public static class BrandDimension {
+        public String status;
+        public String details;
+        public String brand;
+        public String officialDomain;
+    }
+
+    public static class ScamDimension {
+        public String status;
+        public String details;
+        public List<String> hits = new ArrayList<>();
+    }
+
+    public static class ContentDimension {
+        public String status;
+        public String details;
+    }
+
+    public static class AiAnalysis {
+        public boolean configured;
+        public String provider;
+        public String model;
+        public String explanation;
     }
 }

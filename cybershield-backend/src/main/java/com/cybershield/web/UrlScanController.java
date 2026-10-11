@@ -122,6 +122,14 @@ public class UrlScanController {
         out.put("threat_intelligence", ti);
         out.put("explanation", v.explanation());
         out.put("recommendations", v.recommendations());
+        out.put("verdict", v.verdict());
+        out.put("checked_hostname", v.checkedHostname());
+        out.put("registrable_domain", v.registrableDomain());
+        out.put("final_destination", v.finalDestination());
+        out.put("findings", v.findings());
+        out.put("checks_run", v.checksRun());
+        out.put("checks_failed", v.checksFailed());
+        out.put("ai_analysis", v.aiAnalysis());
         out.put("report_id", v.reportId());
         out.put("analyzed_at", v.analyzedAt());
         return out;

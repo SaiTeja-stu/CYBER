@@ -28,7 +28,7 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Priority queue"
+            android:text="Vault"
             android:textColor="@color/text"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -41,7 +41,7 @@
         android:layout_marginTop="2dp"
         android:textColor="@color/muted"
         android:textSize="13sp"
-        android:text="Recent analyses" />
+        android:text="Everything you've checked, riskiest first" />
 
     <HorizontalScrollView
         android:layout_width="match_parent"
@@ -55,7 +55,7 @@
             app:singleSelection="true"
             xmlns:app="http://schemas.android.com/apk/res-auto">
             <com.google.android.material.chip.Chip android:id="@+id/fAll" style="@style/Widget.Material3.Chip.Filter" android:text="All" android:checked="true" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-            <com.google.android.material.chip.Chip android:id="@+id/fMal" style="@style/Widget.Material3.Chip.Filter" android:text="Malicious" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <com.google.android.material.chip.Chip android:id="@+id/fMal" style="@style/Widget.Material3.Chip.Filter" android:text="Scam" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             <com.google.android.material.chip.Chip android:id="@+id/fHigh" style="@style/Widget.Material3.Chip.Filter" android:text="High risk" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             <com.google.android.material.chip.Chip android:id="@+id/fSus" style="@style/Widget.Material3.Chip.Filter" android:text="Suspicious" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             <com.google.android.material.chip.Chip android:id="@+id/fSafe" style="@style/Widget.Material3.Chip.Filter" android:text="Safe" android:layout_width="wrap_content" android:layout_height="wrap_content"/>

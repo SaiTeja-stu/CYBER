@@ -3,24 +3,31 @@ package com.cybershield.app.ui;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.accessibility.AccessibilityManager;
+import android.widget.Toast;
 
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.DrawableRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cybershield.app.CyberShieldApp;
+import com.cybershield.app.R;
 import com.cybershield.app.data.SecureStore;
 import com.cybershield.app.databinding.ActivityOnboardingBinding;
+import com.cybershield.app.databinding.ItemPermissionRowBinding;
+import com.cybershield.app.databinding.ItemSettingRowBinding;
 import com.cybershield.app.shield.FraudAccessibilityService;
+import com.cybershield.app.shield.ShieldPrefs;
 
 /**
- * Walks the user through the special-access permissions the shield needs.
- * None of these can be granted with a normal dialog - each button deep-links
- * to the exact system settings screen.
+ * "Protect my whole phone": the special-access permissions the shield needs, plus its preferences.
+ * None of the permissions can be granted with a normal dialog - each card deep-links to the exact
+ * system settings screen, and its state refreshes when the user comes back.
  */
 public class OnboardingActivity extends AppCompatActivity {
 
@@ -37,32 +44,67 @@ public class OnboardingActivity extends AppCompatActivity {
 
         b.btnBack.setOnClickListener(v -> finish());
 
-        b.btnSms.setOnClickListener(v ->
-                smsPerms.launch(new String[]{Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS}));
+        setupRow(b.rowSms, R.drawable.ic_sms, "Scam texts", "Check new SMS for fraud as they arrive",
+                () -> smsPerms.launch(new String[]{Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS}));
+        setupRow(b.rowOverlay, R.drawable.ic_warning, "Warning pop-ups", "Show a warning on top of any app",
+                () -> startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + getPackageName()))));
+        setupRow(b.rowAccessibility, R.drawable.ic_edu_web, "Risky websites", "Warn you before a dangerous page opens",
+                () -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        setupRow(b.rowNotif, R.drawable.ic_mail, "Scam emails", "Check new emails the moment they land",
+                () -> startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")));
 
-        b.btnOverlay.setOnClickListener(v -> startActivity(new Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()))));
+        b.tvRestricted.setOnClickListener(v -> startActivity(new Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()))));
 
-        b.btnAccessibility.setOnClickListener(v ->
-                startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        ShieldPrefs shield = new ShieldPrefs(this);
+        SecureStore store = CyberShieldApp.get().api().store();
 
-        b.btnNotif.setOnClickListener(v ->
-                startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")));
+        setupSetting(b.setBrowser, "Website warnings", "Watch sites you open in any browser", shield.watchBrowsers());
+        setupSetting(b.setStrict, "Extra careful", "Also pause on sites we can't verify yet", shield.strictMode());
+        setupSetting(b.setLock, "App lock", "Use fingerprint or face to open SecureMe", store.biometricLock());
+        setupSetting(b.setDlt, "Check who really sent it", "Spot texts faking a bank or company name",
+                shield.dltProtectionEnabled());
+        setupSetting(b.setQuietBank, "Stay quiet for real banks", "No alarms for genuine OTPs and payment alerts",
+                shield.suppressLegitBankAlerts());
+        setupSetting(b.setPromo, "Flag promo texts too", "Let me know about marketing messages",
+                shield.notifyOnPromo());
+
+        b.setBrowser.toggle.setOnCheckedChangeListener((v, on) -> {
+            shield.setWatchBrowsers(on);
+            if (!on) b.setStrict.toggle.setChecked(false);
+            setSettingEnabled(b.setStrict, on);
+        });
+        setSettingEnabled(b.setStrict, shield.watchBrowsers());
+        b.setStrict.toggle.setOnCheckedChangeListener((v, on) -> shield.setStrictMode(on));
+
+        b.setLock.toggle.setOnCheckedChangeListener((v, on) -> {
+            // without a device lock the app could never be unlocked again
+            if (on && !BiometricGate.available(this)) {
+                b.setLock.toggle.setChecked(false);
+                Toast.makeText(this, "Set up a fingerprint or screen lock on your phone first.",
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+            store.setBiometricLock(on);
+        });
+
+        b.setDlt.toggle.setOnCheckedChangeListener((v, on) -> shield.setDltProtectionEnabled(on));
+        b.setQuietBank.toggle.setOnCheckedChangeListener((v, on) -> shield.setSuppressLegitBankAlerts(on));
+        b.setPromo.toggle.setOnCheckedChangeListener((v, on) -> shield.setNotifyOnPromo(on));
 
         b.btnTestLegitSms.setOnClickListener(v -> {
             com.cybershield.app.sms.SmsReceiver.scan(getApplicationContext(), "VK-HDFCBK-T",
                     "₹5,000.00 debited from A/C XX1234 on 08-Sep-26. UPI ref 6251049281. Avl Bal: ₹42,150.00. "
                             + "If not done by you, immediately call 18002026161 or SMS BLOCK to 5676712.");
-            android.widget.Toast.makeText(this, "Verified TRAI DLT sender (VK-HDFCBK-T): Classified as authentic Transaction Alert. Safe!",
-                    android.widget.Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Real HDFC alert: SecureMe stayed quiet, as it should.", Toast.LENGTH_LONG).show();
         });
-
         b.btnTestSms.setOnClickListener(v -> {
             com.cybershield.app.sms.SmsReceiver.scan(getApplicationContext(), "+919812345678",
                     "Dear customer, your SBI account KYC is pending. Verify your debit card and the OTP "
                             + "at http://sbi-kyc-verify.tk now or your account will be blocked today.");
-            android.widget.Toast.makeText(this, "Scanning fake number (+91…): watch for the Fraud warning",
-                    android.widget.Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Sample scam text sent to the checker. Watch for the warning.",
+                    Toast.LENGTH_SHORT).show();
         });
         b.btnTestEmail.setOnClickListener(v -> {
             String raw = "From: \"PayPal Service\" <security@paypa1-account-verify.tk>\n"
@@ -73,30 +115,6 @@ public class OnboardingActivity extends AppCompatActivity {
                     + "will be permanently suspended. Confirm your password and the OTP sent to your phone.";
             startActivity(VerdictActivity.intent(this, "EMAIL", raw, "test"));
         });
-
-        SecureStore store = CyberShieldApp.get().api().store();
-        b.swBiometric.setChecked(store.biometricLock());
-        b.swBiometric.setOnCheckedChangeListener((v, checked) -> store.setBiometricLock(checked));
-
-        com.cybershield.app.shield.ShieldPrefs shield = new com.cybershield.app.shield.ShieldPrefs(this);
-        b.swWatchBrowsers.setChecked(shield.watchBrowsers());
-        b.swStrict.setChecked(shield.strictMode());
-        b.swWatchBrowsers.setOnCheckedChangeListener((v, checked) -> {
-            shield.setWatchBrowsers(checked);
-            if (!checked) b.swStrict.setChecked(false);
-            b.swStrict.setEnabled(checked);
-        });
-        b.swStrict.setEnabled(shield.watchBrowsers());
-        b.swStrict.setOnCheckedChangeListener((v, checked) -> shield.setStrictMode(checked));
-
-        b.swDltProtection.setChecked(shield.dltProtectionEnabled());
-        b.swDltProtection.setOnCheckedChangeListener((v, checked) -> shield.setDltProtectionEnabled(checked));
-
-        b.swSuppressLegit.setChecked(shield.suppressLegitBankAlerts());
-        b.swSuppressLegit.setOnCheckedChangeListener((v, checked) -> shield.setSuppressLegitBankAlerts(checked));
-
-        b.swNotifyPromo.setChecked(shield.notifyOnPromo());
-        b.swNotifyPromo.setOnCheckedChangeListener((v, checked) -> shield.setNotifyOnPromo(checked));
     }
 
     @Override
@@ -110,17 +128,59 @@ public class OnboardingActivity extends AppCompatActivity {
                 == android.content.pm.PackageManager.PERMISSION_GRANTED;
         boolean overlay = Settings.canDrawOverlays(this);
         boolean acc = isAccessibilityEnabled(this);
-
-        b.btnSms.setText(sms ? "SMS access granted ✓" : "Grant SMS access");
-        b.btnSms.setEnabled(!sms);
-        b.btnOverlay.setText(overlay ? "Overlay allowed ✓" : "Open overlay setting");
-        b.btnOverlay.setEnabled(!overlay);
-        b.btnAccessibility.setText(acc ? "Shield service is ON ✓" : "Open accessibility setting");
-
         boolean notif = notificationAccessGranted(this);
-        b.btnNotif.setText(notif ? "Email auto-scan is ON ✓" : "Open notification-access setting");
-        b.btnNotif.setEnabled(!notif);
+
+        setRowState(b.rowSms, sms, false);
+        setRowState(b.rowOverlay, overlay, false);
+        setRowState(b.rowAccessibility, acc, true);   // stays tappable so it can be turned off again
+        setRowState(b.rowNotif, notif, false);
+
+        int on = (sms ? 1 : 0) + (overlay ? 1 : 0) + (acc ? 1 : 0) + (notif ? 1 : 0);
+        b.tvProgress.setText(on == 4 ? "You're fully protected" : on + " of 4 turned on");
+        b.tvProgressHint.setText(on == 4 ? "All set" : "Takes about a minute");
+        b.progress.setProgressCompat(on, true);
     }
+
+    // ---------------------------------------------------------------- rows
+
+    private void setupRow(ItemPermissionRowBinding row, @DrawableRes int icon, String title, String subtitle,
+                          Runnable open) {
+        row.icon.setImageResource(icon);
+        row.title.setText(title);
+        row.subtitle.setText(subtitle);
+        row.getRoot().setOnClickListener(v -> open.run());
+        row.action.setOnClickListener(v -> open.run());
+    }
+
+    private void setRowState(ItemPermissionRowBinding row, boolean on, boolean tappableWhenOn) {
+        int accent = getColor(R.color.cyber_emerald);
+        if (on) {
+            row.action.setText("On  ✓");
+            row.action.setBackgroundTintList(ColorStateList.valueOf(getColor(R.color.nav_neon_soft)));
+            row.action.setTextColor(accent);
+        } else {
+            row.action.setText("Turn on");
+            row.action.setBackgroundTintList(ColorStateList.valueOf(accent));
+            row.action.setTextColor(getColor(R.color.on_accent));
+        }
+        boolean tappable = !on || tappableWhenOn;
+        row.getRoot().setClickable(tappable);
+        row.action.setClickable(tappable);
+    }
+
+    private static void setupSetting(ItemSettingRowBinding row, String title, String subtitle, boolean checked) {
+        row.title.setText(title);
+        row.subtitle.setText(subtitle);
+        row.toggle.setChecked(checked);
+        row.getRoot().setOnClickListener(v -> { if (row.toggle.isEnabled()) row.toggle.toggle(); });
+    }
+
+    private static void setSettingEnabled(ItemSettingRowBinding row, boolean enabled) {
+        row.toggle.setEnabled(enabled);
+        row.getRoot().setAlpha(enabled ? 1f : 0.45f);
+    }
+
+    // ---------------------------------------------------------------- permission checks
 
     private static boolean notificationAccessGranted(Context ctx) {
         String flat = Settings.Secure.getString(ctx.getContentResolver(), "enabled_notification_listeners");

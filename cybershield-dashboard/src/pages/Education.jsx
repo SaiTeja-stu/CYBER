@@ -269,7 +269,7 @@ export default function Education() {
     return (
       <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-400 flex items-center gap-3">
         <AlertOctagon className="h-5 w-5 shrink-0" />
-        <span>Failed to load education modules: {err}</span>
+        <span>We couldn't load the lessons: {err}</span>
       </div>
     );
   }
@@ -278,7 +278,7 @@ export default function Education() {
     return (
       <div className="flex h-64 items-center justify-center gap-3 text-slate-400">
         <Spinner className="h-6 w-6 text-cyber-accent" />
-        <span className="font-mono text-sm">Loading security awareness modules…</span>
+        <span className="text-sm">Loading lessons…</span>
       </div>
     );
   }
@@ -338,29 +338,26 @@ export default function Education() {
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyber-accent/30 bg-cyber-accent/10 px-3 py-1 text-xs font-mono font-semibold text-cyber-accent">
-              <Sparkles className="h-3.5 w-3.5" /> SOC Cyber Awareness Hub
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyber-accent/30 bg-cyber-accent/10 px-3 py-1 text-xs font-semibold text-cyber-accent">
+              <Sparkles className="h-3.5 w-3.5" /> Lessons
             </div>
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
-              <GraduationCap className="h-8 w-8 text-cyber-accent" /> Security Awareness & Training Center
+              <GraduationCap className="h-8 w-8 text-cyber-accent" /> Help people spot scams
             </h1>
             <p className="text-xs md:text-sm text-slate-300 leading-relaxed">
-              Interactive cyber threat mitigation guides, scam simulations, and awareness modules synchronized live via{' '}
-              <code className="font-mono text-cyber-accent bg-cyber-dark/80 px-2 py-0.5 rounded border border-cyber-border">
-                /api/v1/education/modules
-              </code>.
+              Short lessons, a quick quiz and real-looking examples to help people recognise a scam. The same lessons appear in the SecureMe app, in English, Telugu and Hindi.
             </p>
           </div>
 
           {/* Quick Metrics */}
           <div className="grid grid-cols-2 gap-3 shrink-0">
             <div className="rounded-2xl border border-cyber-border/80 bg-cyber-dark/80 p-3.5 text-center">
-              <div className="text-xl font-bold font-mono text-white">{mods.length}</div>
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Awareness Modules</div>
+              <div className="text-2xl font-bold text-white">{mods.length}</div>
+              <div className="text-xs font-medium text-slate-400">Lessons</div>
             </div>
             <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-center">
-              <div className="text-xl font-bold font-mono text-emerald-400">1930</div>
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">National Helpline</div>
+              <div className="text-2xl font-bold text-emerald-400">1930</div>
+              <div className="text-xs font-medium text-emerald-300">Scam helpline</div>
             </div>
           </div>
         </div>
@@ -375,7 +372,7 @@ export default function Education() {
                 : 'bg-cyber-dark/80 text-slate-400 border border-cyber-border hover:text-white hover:bg-cyber-panel'
             }`}
           >
-            <BookOpen className="h-4 w-4" /> Awareness Library ({mods.length})
+            <BookOpen className="h-4 w-4" /> Lessons ({mods.length})
           </button>
 
           <button
@@ -386,7 +383,7 @@ export default function Education() {
                 : 'bg-cyber-dark/80 text-slate-400 border border-cyber-border hover:text-white hover:bg-cyber-panel'
             }`}
           >
-            <Award className="h-4 w-4" /> Interactive Threat Quiz
+            <Award className="h-4 w-4" /> Quick quiz
           </button>
 
           <button
@@ -397,7 +394,7 @@ export default function Education() {
                 : 'bg-cyber-dark/80 text-slate-400 border border-cyber-border hover:text-white hover:bg-cyber-panel'
             }`}
           >
-            <AlertTriangle className="h-4 w-4" /> Threat Simulator
+            <AlertTriangle className="h-4 w-4" /> Real examples
           </button>
 
           <button
@@ -408,7 +405,7 @@ export default function Education() {
                 : 'bg-cyber-dark/80 text-slate-400 border border-cyber-border hover:text-white hover:bg-cyber-panel'
             }`}
           >
-            <FileText className="h-4 w-4" /> Incident Checklist
+            <FileText className="h-4 w-4" /> If someone got scammed
           </button>
         </div>
       </div>
@@ -449,7 +446,7 @@ export default function Education() {
               <input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search modules, keywords, threats…"
+                placeholder="Search lessons…"
                 className="w-full rounded-xl border border-cyber-border bg-cyber-dark/90 pl-10 pr-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-cyber-accent focus:ring-1 focus:ring-cyber-accent"
               />
             </div>
@@ -460,13 +457,13 @@ export default function Education() {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`rounded-lg px-3 py-1.5 text-[11px] font-bold font-mono transition-all uppercase ${
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold capitalize transition-all ${
                     selectedCategory === cat
                       ? 'bg-cyber-accent text-slate-950 shadow-cyber-glow'
                       : 'bg-cyber-dark/80 text-slate-400 border border-cyber-border hover:text-white hover:bg-cyber-panel'
                   }`}
                 >
-                  {cat}
+                  {cat === 'ALL' ? 'All' : cat.toLowerCase().replace(/-/g, ' ')}
                 </button>
               ))}
             </div>
@@ -476,7 +473,7 @@ export default function Education() {
           {filteredMods.length === 0 ? (
             <div className="rounded-2xl border border-cyber-border bg-cyber-panel/60 p-12 text-center text-slate-400">
               <BookOpen className="mx-auto h-8 w-8 text-slate-500 mb-2" />
-              <p className="text-sm font-semibold">No modules match your search filter.</p>
+              <p className="text-sm font-semibold">No lessons match that search.</p>
               <button
                 onClick={() => {
                   setSearchTerm('');
@@ -484,7 +481,7 @@ export default function Education() {
                 }}
                 className="mt-3 text-xs text-cyber-accent hover:underline"
               >
-                Reset Search Filters
+                Clear search
               </button>
             </div>
           ) : (
@@ -496,8 +493,8 @@ export default function Education() {
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="rounded-lg border border-cyber-accent/30 bg-cyber-accent/10 px-3 py-1 font-mono text-[11px] font-bold text-cyber-accent uppercase tracking-wider">
-                        {m.category}
+                      <span className="rounded-lg border border-cyber-accent/30 bg-cyber-accent/10 px-3 py-1 text-xs font-semibold capitalize text-cyber-accent">
+                        {m.category.replace(/-/g, ' ')}
                       </span>
                       <button
                         onClick={() => toggleSpeak(m)}
@@ -560,7 +557,7 @@ export default function Education() {
                   </div>
 
                   <div className="pt-2 border-t border-cyber-border/40 flex items-center justify-between text-xs text-slate-400">
-                    <span className="font-mono text-[11px]">#{m.id}</span>
+                    <span className="text-xs">About a minute</span>
                     <button
                       onClick={() => {
                         setActiveTab('quiz');
@@ -568,7 +565,7 @@ export default function Education() {
                       }}
                       className="flex items-center gap-1 font-semibold text-cyber-accent hover:underline"
                     >
-                      Test Quiz <ChevronRight className="h-3.5 w-3.5" />
+                      Try the quiz <ChevronRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
@@ -586,7 +583,7 @@ export default function Education() {
               {/* Quiz Header */}
               <div className="flex items-center justify-between border-b border-cyber-border/60 pb-4">
                 <div>
-                  <span className="rounded-lg border border-cyber-accent/30 bg-cyber-accent/10 px-3 py-1 font-mono text-[11px] font-bold text-cyber-accent uppercase">
+                  <span className="rounded-lg border border-cyber-accent/30 bg-cyber-accent/10 px-3 py-1 text-xs font-semibold text-cyber-accent">
                     {QUIZ_QUESTIONS[quizIndex].category}
                   </span>
                   <h2 className="text-lg font-bold text-white mt-2">
@@ -652,8 +649,8 @@ export default function Education() {
               {/* Feedback Explanation */}
               {selectedOption !== null && (
                 <div className="rounded-2xl border border-cyber-accent/30 bg-cyber-accent/10 p-4 text-xs text-cyber-accent space-y-1.5 animate-fadeIn">
-                  <div className="flex items-center gap-2 font-bold uppercase tracking-wider text-[11px]">
-                    <HelpCircle className="h-4 w-4" /> Explanation & Defense Protocol
+                  <div className="flex items-center gap-2 text-sm font-bold">
+                    <HelpCircle className="h-4 w-4" /> Why
                   </div>
                   <p className="text-slate-200 leading-relaxed">{QUIZ_QUESTIONS[quizIndex].explanation}</p>
                 </div>
@@ -666,7 +663,7 @@ export default function Education() {
                     onClick={handleNextQuiz}
                     className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyber-accent to-cyber-indigo px-6 py-3 text-xs font-bold text-slate-950 shadow-cyber-glow hover:opacity-90 transition-all"
                   >
-                    <span>{quizIndex + 1 === QUIZ_QUESTIONS.length ? 'View Quiz Results' : 'Next Question'}</span>
+                    <span>{quizIndex + 1 === QUIZ_QUESTIONS.length ? 'See my score' : 'Next question'}</span>
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -682,7 +679,7 @@ export default function Education() {
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-white">Quiz Completed!</h2>
+                <h2 className="text-2xl font-bold text-white">Quiz done!</h2>
                 <p className="text-sm text-slate-400">
                   You scored <span className="font-bold text-cyber-accent font-mono text-lg">{quizScore}</span> out of{' '}
                   <span className="font-bold text-white font-mono text-lg">{QUIZ_QUESTIONS.length}</span>
@@ -690,22 +687,22 @@ export default function Education() {
               </div>
 
               <div className="rounded-2xl border border-cyber-border bg-cyber-dark/80 p-4 max-w-md mx-auto">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Status Badge</div>
+                <div className="text-sm font-medium text-slate-400 mb-1">Your result</div>
                 <div className="text-base font-bold text-emerald-400 flex items-center justify-center gap-2">
                   {quizScore === 5 ? (
                     <>
                       <Award className="h-5 w-5 text-amber-400" />
-                      <span className="text-amber-400">Master SOC Threat Specialist</span>
+                      <span className="text-amber-400">Scam expert: nobody is fooling you</span>
                     </>
                   ) : quizScore >= 3 ? (
                     <>
                       <ShieldCheck className="h-5 w-5 text-emerald-400" />
-                      <span>Certified Cyber Security Officer</span>
+                      <span>Scam-savvy: well done</span>
                     </>
                   ) : (
                     <>
                       <AlertOctagon className="h-5 w-5 text-amber-400" />
-                      <span className="text-amber-400">Awareness Trainee (Review Modules)</span>
+                      <span className="text-amber-400">Getting there: have another look at the lessons</span>
                     </>
                   )}
                 </div>
@@ -716,13 +713,13 @@ export default function Education() {
                   onClick={restartQuiz}
                   className="flex items-center gap-2 rounded-xl border border-cyber-border bg-cyber-panel px-5 py-2.5 text-xs font-bold text-slate-200 hover:bg-cyber-dark transition-all"
                 >
-                  <RefreshCw className="h-4 w-4" /> Retake Quiz
+                  <RefreshCw className="h-4 w-4" /> Try again
                 </button>
                 <button
                   onClick={() => setActiveTab('library')}
                   className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyber-accent to-cyber-indigo px-5 py-2.5 text-xs font-bold text-slate-950 shadow-cyber-glow"
                 >
-                  Back to Library
+                  Back to lessons
                 </button>
               </div>
             </div>
@@ -735,7 +732,7 @@ export default function Education() {
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Scenario Selector List */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Select Threat Scenario</h3>
+            <h3 className="text-sm font-semibold text-slate-400">Pick an example</h3>
             <div className="space-y-2.5">
               {SIMULATED_SCENARIOS.map((sc) => {
                 const IconComp = sc.icon;
@@ -756,7 +753,7 @@ export default function Education() {
                       </div>
                       <div>
                         <div className="text-sm font-bold text-white">{sc.name}</div>
-                        <div className="text-[11px] font-mono text-slate-400">{sc.type}</div>
+                        <div className="text-xs text-slate-400">{sc.type}</div>
                       </div>
                     </div>
                     <ChevronRight className={`h-4 w-4 ${isActive ? 'text-cyber-accent' : 'text-slate-600'}`} />
@@ -770,21 +767,21 @@ export default function Education() {
           <div className="lg:col-span-2 glass-card rounded-3xl p-6 md:p-8 border border-cyber-border/80 space-y-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-cyber-border/60 pb-4">
               <div>
-                <span className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1 font-mono text-[11px] font-bold text-red-400 uppercase tracking-wider">
-                  Live Attack Simulation
+                <span className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-400">
+                  Example scam
                 </span>
                 <h2 className="text-xl font-bold text-white mt-2">{activeScenario.name}</h2>
               </div>
-              <span className="rounded-full border border-cyber-accent/30 bg-cyber-accent/10 px-3 py-1 font-mono text-xs font-bold text-cyber-accent">
+              <span className="rounded-full border border-cyber-accent/30 bg-cyber-accent/10 px-3 py-1 text-xs font-semibold text-cyber-accent">
                 {activeScenario.type}
               </span>
             </div>
 
             {/* Simulated Device Screen */}
-            <div className="rounded-2xl border border-cyber-border bg-cyber-dark p-5 space-y-3 font-mono text-xs">
-              <div className="flex items-center justify-between border-b border-cyber-border/40 pb-2 text-[10px] text-slate-500">
-                <span>SIMULATED PAYLOAD SCREEN</span>
-                <span className="text-red-400 font-bold">● RISK SCORE: 95-100</span>
+            <div className="rounded-2xl border border-cyber-border bg-cyber-dark p-5 space-y-3 text-sm">
+              <div className="flex items-center justify-between border-b border-cyber-border/40 pb-2 text-xs text-slate-500">
+                <span>What the person sees</span>
+                <span className="text-red-400 font-bold">● Very risky</span>
               </div>
               <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-amber-200 leading-relaxed font-mono">
                 {activeScenario.content}
@@ -793,8 +790,8 @@ export default function Education() {
 
             {/* Security Analysis Breakdown */}
             <div className="space-y-4">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-red-400 flex items-center gap-2">
-                <AlertOctagon className="h-4 w-4" /> Detected Security Red Flags
+              <h4 className="text-sm font-bold text-red-400 flex items-center gap-2">
+                <AlertOctagon className="h-4 w-4" /> Warning signs
               </h4>
               <ul className="space-y-2 text-xs text-slate-300">
                 {activeScenario.redFlags.map((flag, i) => (
@@ -809,7 +806,7 @@ export default function Education() {
             {/* Defense Directive */}
             <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 space-y-2">
               <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
-                <ShieldCheck className="h-4 w-4" /> Recommended Countermeasure Action
+                <ShieldCheck className="h-4 w-4" /> What to do
               </div>
               <p className="text-xs text-slate-200 leading-relaxed">{activeScenario.action}</p>
             </div>
@@ -823,14 +820,14 @@ export default function Education() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-cyber-border/60 pb-4">
             <div>
               <h2 className="text-xl font-bold text-white flex items-center gap-2.5">
-                <PhoneCall className="h-6 w-6 text-emerald-400" /> Emergency Cyber Crime Incident Checklist
+                <PhoneCall className="h-6 w-6 text-emerald-400" /> If someone got scammed
               </h2>
-              <p className="text-xs text-slate-400 mt-1">
-                If an employee or family member has accidentally fallen for a cyber fraud, execute these steps immediately.
+              <p className="text-sm text-slate-400 mt-1">
+                Do these four things straight away. The first two hours matter most.
               </p>
             </div>
-            <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 font-mono text-xs font-bold text-emerald-400">
-              Helpline: 1930 (National Cyber Crime)
+            <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-bold text-emerald-400">
+              Call 1930 (national cyber-crime helpline)
             </div>
           </div>
 
@@ -841,7 +838,7 @@ export default function Education() {
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyber-accent/20 text-cyber-accent font-mono text-xs font-bold">
                   1
                 </div>
-                <span>Block Bank Cards & UPI Handles</span>
+                <span>Block cards and UPI</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
                 Immediately call your bank’s official toll-free helpline or use mobile banking to freeze UPI transactions and block compromised cards.
@@ -853,7 +850,7 @@ export default function Education() {
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 font-mono text-xs font-bold">
                   2
                 </div>
-                <span>Report to 1930 / CyberCrime.gov.in</span>
+                <span>Report it on 1930 or cybercrime.gov.in</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
                 Dial national cyber crime toll-free number 1930 within the golden hour (first 2 hours) to freeze fraudulently transferred funds.
@@ -865,7 +862,7 @@ export default function Education() {
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 font-mono text-xs font-bold">
                   3
                 </div>
-                <span>Revoke Device Permissions & Passwords</span>
+                <span>Remove remote-access apps, change passwords</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
                 Uninstall any remote access app installed during the call (e.g. AnyDesk, TeamViewer) and change passwords on a separate clean device.
@@ -877,10 +874,10 @@ export default function Education() {
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400 font-mono text-xs font-bold">
                   4
                 </div>
-                <span>Submit Threat Report in Cyber Shield</span>
+                <span>Report it in SecureMe</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Submit the scam URL or phone number to the Cyber Shield Threat Report console to add it to the community blocklist across all devices.
+                Report the scam link or phone number in the SecureMe app so it gets blocked for everyone.
               </p>
             </div>
           </div>

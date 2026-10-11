@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from 'react';
 import { Users as UsersIcon, Database, HardDrive, ShieldCheck, RefreshCw, AlertOctagon, FileText } from 'lucide-react';
 import { api } from '../api.js';
 import { Card, Spinner } from '../components/ui.jsx';
-import SpecularButton from '../components/SpecularButton.jsx';
 
 const fmtBytes = (n) => {
   if (!n) return '0 B';
@@ -34,16 +33,16 @@ export default function Users() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="flex items-center gap-2.5 text-2xl font-bold tracking-tight text-white">
-            <UsersIcon className="h-6 w-6 text-cyber-accent" /> Users &amp; Data Storage
+            <UsersIcon className="h-6 w-6 text-cyber-accent" /> People &amp; data
           </h1>
-          <p className="mt-1 text-xs text-slate-400">
-            Every registered Secure Me user, what they have generated, and exactly where that data is stored.
-            Emails and IPs are masked. Passwords and one-time codes are never shown.
+          <p className="mt-1 text-sm text-slate-400">
+            Everyone who uses SecureMe, what they've done, and exactly where their data is kept.
+            Emails and IP addresses are partly hidden. Passwords and one-time codes are never shown.
           </p>
         </div>
-        <SpecularButton onClick={load} size="sm" lineColor="#63e31a" baseColor="#0d2314" radius={12}>
+        <button type="button" onClick={load} className="btn-soft">
           <RefreshCw className="h-3.5 w-3.5" /> Refresh
-        </SpecularButton>
+        </button>
       </div>
 
       {err && (
@@ -54,7 +53,7 @@ export default function Users() {
 
       {/* Where the data lives */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card title="Hot database" icon={Database}>
+        <Card title="Recent data (database)" icon={Database}>
           {!store ? (
             <Spinner />
           ) : (
@@ -66,7 +65,7 @@ export default function Users() {
             </dl>
           )}
         </Card>
-        <Card title="Cold archive" icon={HardDrive}>
+        <Card title="Older data (archive)" icon={HardDrive}>
           {!store ? (
             <Spinner />
           ) : (
@@ -77,7 +76,7 @@ export default function Users() {
             </dl>
           )}
         </Card>
-        <Card title="Privacy safeguards" icon={ShieldCheck}>
+        <Card title="How we protect privacy" icon={ShieldCheck}>
           {!store ? (
             <Spinner />
           ) : (
@@ -88,7 +87,7 @@ export default function Users() {
         </Card>
       </div>
 
-      <Card title="Tables in the database" icon={FileText}>
+      <Card title="What's stored" icon={FileText}>
         {!store ? (
           <Spinner />
         ) : (
@@ -96,8 +95,8 @@ export default function Users() {
             <table className="w-full text-left text-xs">
               <thead className="text-slate-400">
                 <tr className="border-b border-cyber-border/60">
-                  <th className="py-2 pr-4 font-semibold">Table</th>
-                  <th className="py-2 pr-4 font-semibold">Rows</th>
+                  <th className="py-2 pr-4 font-semibold">Where</th>
+                  <th className="py-2 pr-4 font-semibold">How many</th>
                   <th className="py-2 font-semibold">What it holds</th>
                 </tr>
               </thead>
@@ -116,27 +115,27 @@ export default function Users() {
       </Card>
 
       {/* Users */}
-      <Card title={`Registered users${users ? ` (${users.total})` : ''}`} icon={UsersIcon}>
+      <Card title={`People${users ? ` (${users.total})` : ''}`} icon={UsersIcon}>
         {!users ? (
           <div className="flex h-24 items-center justify-center gap-2 text-slate-400">
-            <Spinner /> <span className="font-mono text-xs">Loading users…</span>
+            <Spinner /> <span className="text-sm">Loading people…</span>
           </div>
         ) : users.items.length === 0 ? (
-          <p className="py-6 text-center text-sm text-slate-500">No users have registered yet.</p>
+          <p className="py-6 text-center text-sm text-slate-500">Nobody has signed up yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[980px] text-left text-xs">
               <thead className="text-slate-400">
                 <tr className="border-b border-cyber-border/60">
-                  <th className="py-2 pr-3 font-semibold">User ID</th>
+                  <th className="py-2 pr-3 font-semibold">ID</th>
                   <th className="py-2 pr-3 font-semibold">Username</th>
                   <th className="py-2 pr-3 font-semibold">Email</th>
                   <th className="py-2 pr-3 font-semibold">Role</th>
-                  <th className="py-2 pr-3 font-semibold">Verified</th>
+                  <th className="py-2 pr-3 font-semibold">Email verified</th>
                   <th className="py-2 pr-3 font-semibold">Terms accepted</th>
                   <th className="py-2 pr-3 font-semibold">Joined</th>
                   <th className="py-2 pr-3 font-semibold">Last sign-in</th>
-                  <th className="py-2 pr-3 font-semibold">Scans</th>
+                  <th className="py-2 pr-3 font-semibold">Checks</th>
                   <th className="py-2 font-semibold">Reports</th>
                 </tr>
               </thead>
@@ -146,7 +145,7 @@ export default function Users() {
                     <td className="py-2 pr-3 font-mono text-[11px] text-slate-400">{u.id.slice(0, 8)}…</td>
                     <td className="py-2 pr-3 font-semibold text-slate-100">{u.username}</td>
                     <td className="py-2 pr-3 font-mono text-slate-300">{u.email}</td>
-                    <td className="py-2 pr-3 font-mono text-cyan-300">{u.role.replace('ROLE_', '')}</td>
+                    <td className="py-2 pr-3 text-cyan-300">{u.role.replace('ROLE_', '') === 'ADMIN' ? 'Admin' : 'User'}</td>
                     <td className="py-2 pr-3">{u.emailVerified ? <span className="text-emerald-400">Yes</span> : <span className="text-yellow-400">No</span>}</td>
                     <td className="py-2 pr-3 text-slate-300">{u.termsVersion ? `v${u.termsVersion}, ${fmtTime(u.termsAcceptedAt)}` : '-'}</td>
                     <td className="py-2 pr-3 text-slate-300">{fmtTime(u.createdAt)}</td>

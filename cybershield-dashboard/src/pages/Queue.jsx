@@ -4,11 +4,11 @@ import { api } from '../api.js';
 import { RiskBadge, ScoreRing, Spinner } from '../components/ui.jsx';
 
 const FILTERS = [
-  { id: '', label: 'All Items' },
-  { id: 'MALICIOUS', label: 'P1 · Malicious' },
-  { id: 'HIGH_RISK', label: 'P2 · High Risk' },
-  { id: 'SUSPICIOUS', label: 'P3 · Suspicious' },
-  { id: 'SAFE', label: 'P4 · Safe' },
+  { id: '', label: 'Everything' },
+  { id: 'MALICIOUS', label: 'Scams' },
+  { id: 'HIGH_RISK', label: 'High risk' },
+  { id: 'SUSPICIOUS', label: 'Suspicious' },
+  { id: 'SAFE', label: 'Safe' },
 ];
 
 export default function Queue() {
@@ -48,10 +48,10 @@ export default function Queue() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-            <ListFilter className="h-6 w-6 text-cyber-accent" /> Priority Threat Triage Queue
+            <ListFilter className="h-6 w-6 text-cyber-accent" /> Needs review
           </h1>
-          <p className="mt-1 text-xs text-slate-400">
-            Real-time feed of recent content analyses ordered by priority score (P1 Malicious down to P4 Safe).
+          <p className="mt-1 text-sm text-slate-400">
+            The latest things people checked, riskiest first. Tap one to see the details.
           </p>
         </div>
         <button
@@ -60,7 +60,7 @@ export default function Queue() {
           className="flex items-center gap-2 rounded-xl border border-cyber-border bg-cyber-card/80 px-4 py-2 text-xs font-semibold text-slate-200 transition-all hover:border-cyber-accent hover:bg-cyber-border/40 disabled:opacity-50 shadow-cyber-glow"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin text-cyber-accent' : ''}`} />
-          Refresh Stream
+          Refresh
         </button>
       </div>
 
@@ -90,7 +90,7 @@ export default function Queue() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search queue content or ID…"
+            placeholder="Search by text, type or ID…"
             className="w-full rounded-xl border border-cyber-border bg-cyber-dark/80 pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-cyber-accent focus:ring-1 focus:ring-cyber-accent"
           />
         </div>
@@ -102,7 +102,7 @@ export default function Queue() {
 
       {loading && !data && (
         <div className="flex h-48 items-center justify-center gap-2 text-slate-400">
-          <Spinner /> <span className="font-mono text-xs">Loading triage items…</span>
+          <Spinner /> <span className="text-sm">Loading the latest checks…</span>
         </div>
       )}
 
@@ -111,8 +111,8 @@ export default function Queue() {
         {!loading && items.length === 0 && (
           <div className="flex h-48 flex-col items-center justify-center gap-2 rounded-2xl border border-cyber-border bg-cyber-panel/40 p-8 text-center text-slate-500">
             <ShieldAlert className="h-8 w-8 text-slate-600" />
-            <p className="text-sm font-medium">No items found matching the selected triage filter.</p>
-            <p className="text-xs">Run a new analysis in the Analyze Console to add to the queue.</p>
+            <p className="text-sm font-medium">Nothing to review here right now.</p>
+            <p className="text-xs">New checks from the app and this dashboard will show up here.</p>
           </div>
         )}
 
@@ -137,10 +137,10 @@ export default function Queue() {
                     <span className="rounded-lg border border-cyber-border bg-cyber-dark/80 px-2 py-0.5 font-mono text-[11px] font-semibold text-cyan-300">
                       {s.type}
                     </span>
-                    <span className="font-mono text-[11px] text-slate-400">conf {s.confidence}%</span>
+                    <span className="text-xs text-slate-400">{s.confidence}% sure</span>
                   </div>
                   <p className="truncate font-mono text-xs text-slate-200" title={s.snippet}>
-                    {s.snippet || 'No raw content preview'}
+                    {s.snippet || 'No preview available'}
                   </p>
                 </div>
 
@@ -149,38 +149,38 @@ export default function Queue() {
                     {new Date(s.analyzedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </time>
                   <span className="flex items-center gap-1 text-[11px] font-semibold text-cyber-accent hover:underline">
-                    {isExpanded ? 'Collapse' : 'Inspect'} <ArrowUpRight className="h-3 w-3" />
+                    {isExpanded ? 'Hide details' : 'Details'} <ArrowUpRight className="h-3 w-3" />
                   </span>
                 </div>
               </div>
 
               {/* Expanded Inspection Drawer */}
               {isExpanded && (
-                <div className="border-t border-cyber-border/60 bg-cyber-dark/60 p-4 font-mono text-xs space-y-3">
-                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 text-[11px] text-slate-400">
+                <div className="border-t border-cyber-border/60 bg-cyber-dark/60 p-4 text-sm space-y-3">
+                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 text-xs text-slate-400">
                     <div>
-                      <span className="block text-slate-500">Report ID</span>
+                      <span className="block text-slate-500">Reference</span>
                       <span className="text-slate-200">{s.reportId}</span>
                     </div>
                     <div>
-                      <span className="block text-slate-500">Verified Origin</span>
+                      <span className="block text-slate-500">From a verified sender?</span>
                       <span className={s.verified ? 'text-emerald-400' : 'text-slate-400'}>
-                        {String(s.verified)}
+                        {s.verified ? 'Yes' : 'No'}
                       </span>
                     </div>
                     <div>
-                      <span className="block text-slate-500">Initiates Payment</span>
+                      <span className="block text-slate-500">Asks for a payment?</span>
                       <span className={s.initiatesPayment ? 'text-amber-400' : 'text-slate-400'}>
-                        {String(s.initiatesPayment)}
+                        {s.initiatesPayment ? 'Yes' : 'No'}
                       </span>
                     </div>
                     <div>
-                      <span className="block text-slate-500">Timestamp</span>
+                      <span className="block text-slate-500">Checked at</span>
                       <span className="text-slate-200">{new Date(s.analyzedAt).toLocaleString()}</span>
                     </div>
                   </div>
                   <div>
-                    <span className="block text-slate-500 mb-1">Full Payload Content:</span>
+                    <span className="block text-slate-500 mb-1">What was checked</span>
                     <div className="rounded-xl border border-cyber-border bg-cyber-panel/90 p-3 text-slate-200 whitespace-pre-wrap break-all">
                       {s.snippet}
                     </div>

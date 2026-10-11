@@ -23,6 +23,9 @@ if (Test-Path "C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot") {
 } elseif (Test-Path "C:\Program Files\Java\jdk-21") {
     $env:JAVA_HOME = "C:\Program Files\Java\jdk-21"
     $env:Path = "$env:JAVA_HOME\bin;$env:Path"
+} elseif (Test-Path "C:\Program Files\Android\Android Studio\jbr") {
+    $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
+    $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 }
 
 Load-DotEnv (Join-Path $PSScriptRoot ".env")

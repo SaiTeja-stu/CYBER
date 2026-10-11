@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black">
@@ -9,36 +10,173 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <ImageView
-        android:id="@+id/btnBack"
-        android:layout_width="42dp"
-        android:layout_height="42dp"
-        android:layout_gravity="top|start"
-        android:layout_margin="16dp"
-        android:padding="8dp"
-        android:src="@drawable/ic_back"
-        android:tint="@android:color/white"
-        android:background="@drawable/bg_stat_card"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="Back" />
+    <com.cybershield.app.ui.ScannerOverlayView
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-    <TextView
+    <!-- Top bar: back · title · torch -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:paddingTop="70dp"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:text="Point at a QR code. The payload is checked before you can pay."
-        android:textColor="@android:color/white" />
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="16dp">
 
-    <TextView
-        android:id="@+id/status"
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/bg_glass_circle"
+            android:clickable="true"
+            android:contentDescription="Back"
+            android:focusable="true"
+            android:padding="11dp"
+            android:src="@drawable/ic_back"
+            app:tint="@android:color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="Scan QR code"
+            android:textColor="@android:color/white"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/btnTorch"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/bg_glass_circle"
+            android:clickable="true"
+            android:contentDescription="Flashlight"
+            android:focusable="true"
+            android:padding="11dp"
+            android:src="@drawable/ic_flash"
+            android:visibility="gone"
+            app:tint="@android:color/white" />
+    </RelativeLayout>
+
+    <!-- Positioned just under the scan window from code; on its own glass card so whatever the
+         camera sees behind it can't make the words hard to read -->
+    <FrameLayout
+        android:id="@+id/hintBlock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/bg_glass_card_dark"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:id="@+id/hintTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:shadowColor="#99000000"
+                android:shadowRadius="6"
+                android:text="Point at a QR code"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/hintSub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:gravity="center"
+                android:shadowColor="#99000000"
+                android:shadowRadius="6"
+                android:text="We'll check it before you pay"
+                android:textColor="#CCFFFFFF"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:padding="24dp"
-        android:textColor="@android:color/white"
-        android:text="" />
+        android:layout_marginBottom="32dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+    <!-- Scan a QR from a saved image instead of the camera -->
+    <LinearLayout
+        android:id="@+id/btnGallery"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_glass_pill"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="18dp"
+        android:paddingEnd="20dp">
+
+        <ImageView
+            android:id="@+id/galleryIcon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_gallery"
+            app:tint="@android:color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Choose from gallery"
+            android:textColor="@android:color/white"
+            android:textSize="14.5sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Privacy reassurance -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/bg_glass_card_dark"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="10dp">
+
+        <ImageView
+            android:id="@+id/privacyIcon"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_nav_shield" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Checked on your phone. Nothing is uploaded."
+            android:textColor="#E6FFFFFF"
+            android:textSize="12.5sp" />
+    </LinearLayout>
+    </LinearLayout>
 </FrameLayout>

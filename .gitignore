@@ -40,3 +40,6 @@ cybershield-backend/gradle.properties
 # scratch / preview files and test videos
 *.mp4
 /*.png
+.claude/
+.presentation-build/
+output/

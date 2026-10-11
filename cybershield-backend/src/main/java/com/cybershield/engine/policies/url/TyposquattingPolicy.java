@@ -34,9 +34,23 @@ public class TyposquattingPolicy extends AbstractPolicy {
             for (String brand : intel.knownBrands()) {
                 if (label.equals(brand)) continue;
                 int d = safeDistance(label, brand);
-                boolean contains = label.contains(brand) && !label.equals(brand);
-                if ((brand.length() >= 5 && d >= 1 && d <= (brand.length() <= 6 ? 1 : 2) && Math.abs(label.length() - brand.length()) <= 2)
-                        || (contains && label.length() <= brand.length() + 6)) {
+                boolean isEditDistanceMatch = brand.length() >= 4 && d == 1 && Math.abs(label.length() - brand.length()) <= 1;
+                // Only consider token match if brand is an isolated segment separated by hyphen (e.g. apple-login)
+                boolean isTokenWithPhishingIntent = false;
+                if (label.contains("-")) {
+                    String[] tokens = label.split("-");
+                    boolean hasBrandToken = false;
+                    boolean hasPhishIntent = false;
+                    for (String tok : tokens) {
+                        if (tok.equals(brand)) hasBrandToken = true;
+                        if (java.util.Set.of("login", "verify", "secure", "auth", "account", "banking", "wallet", "kyc", "portal", "update").contains(tok)) {
+                            hasPhishIntent = true;
+                        }
+                    }
+                    isTokenWithPhishingIntent = hasBrandToken && hasPhishIntent;
+                }
+
+                if (isEditDistanceMatch || isTokenWithPhishingIntent) {
                     out.add(signal("Look-alike domain",
                             "'" + u.host() + "' closely imitates the brand '" + brand + "'.",
                             Severity.HIGH, 30));

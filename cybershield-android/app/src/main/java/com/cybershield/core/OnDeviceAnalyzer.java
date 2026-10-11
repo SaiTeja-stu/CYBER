@@ -130,10 +130,10 @@ public final class OnDeviceAnalyzer {
         boolean initiatesPayment = upi != null && upi.initiatesDebit();
         explanations.enrich(v, type, upi, initiatesPayment);
 
-        return toResponse(type, v, upi, initiatesPayment);
+        return toResponse(type, v, upi, initiatesPayment, built);
     }
 
-    private AnalyzeResponse toResponse(ContentType type, Verdict v, UpiUri upi, boolean initiatesPayment) {
+    private AnalyzeResponse toResponse(ContentType type, Verdict v, UpiUri upi, boolean initiatesPayment, ContextBuilder.Built built) {
         AnalyzeResponse r = new AnalyzeResponse();
         r.reportId = UUID.randomUUID().toString();
         r.contentType = type.name();
@@ -176,6 +176,90 @@ public final class OnDeviceAnalyzer {
         SimpleDateFormat iso = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
         iso.setTimeZone(TimeZone.getTimeZone("UTC"));
         r.analyzedAt = iso.format(new Date());
+
+        if (built.context().primaryUrl().isPresent()) {
+            var u = built.context().primaryUrl().get();
+            r.checkedHostname = u.host();
+            r.registrableDomain = u.registrableDomain();
+            r.finalDestination = u.original();
+        }
+
+        // Unified evidence-based findings
+        AnalyzeResponse.Findings findings = new AnalyzeResponse.Findings();
+
+        // Technical Threat
+        boolean hasCrit = v.getSignals().stream().anyMatch(s -> "CRITICAL".equals(s.severity().name()) || s.policyId().equals("URL-10"));
+        boolean hasSuspTech = v.getSignals().stream().anyMatch(s -> s.policyId().equals("URL-02") || s.policyId().equals("URL-04") || s.policyId().equals("URL-07"));
+        AnalyzeResponse.Dimension tech = new AnalyzeResponse.Dimension();
+        tech.status = hasCrit ? "MALICIOUS" : hasSuspTech ? "SUSPICIOUS" : "CLEAN";
+        tech.details = hasCrit ? "Specific technical threat identified by threat intelligence."
+                : hasSuspTech ? "Suspicious technical indicators detected (IP host, punycode, or obfuscation)."
+                : "No malicious payloads, unencrypted credentials, or hostile redirects detected.";
+        for (Signal s : v.getSignals()) {
+            if (s.weight() > 0 && (s.policyId().startsWith("URL-") || s.policyId().startsWith("WEB-"))) {
+                tech.evidence.add(s.name() + ": " + s.detail());
+            }
+        }
+        findings.technicalThreat = tech;
+
+        // Brand Authenticity
+        boolean deceptiveSub = v.getSignals().stream().anyMatch(s -> s.policyId().equals("URL-05"));
+        boolean lookalike = v.getSignals().stream().anyMatch(s -> s.policyId().equals("URL-01"));
+        AnalyzeResponse.BrandDimension brand = new AnalyzeResponse.BrandDimension();
+        brand.status = v.isTrusted() ? "OFFICIAL" : deceptiveSub ? "DECEPTIVE_SUBDOMAIN" : lookalike ? "LOOKALIKE" : "UNRELATED";
+        brand.details = v.isTrusted() ? "Independently verified official domain (" + r.registrableDomain + ")."
+                : deceptiveSub ? "Brand name used in a subdomain of an unrelated registered domain."
+                : lookalike ? "Lookalike or typosquatting domain."
+                : "Domain does not claim or impersonate an authoritative brand.";
+        findings.brandAuthenticity = brand;
+
+        // Scam Evidence
+        boolean otpTheft = v.getSignals().stream().anyMatch(s -> s.policyId().equals("MSG-01") || s.name().toLowerCase(Locale.ROOT).contains("otp"));
+        boolean coercion = v.getSignals().stream().anyMatch(s -> s.policyId().equals("MSG-02") || s.policyId().equals("MSG-04"));
+        AnalyzeResponse.ScamDimension scam = new AnalyzeResponse.ScamDimension();
+        scam.status = otpTheft ? "CREDENTIAL_HARVESTING" : coercion ? "COERCION_URGENCY" : "NONE";
+        scam.details = otpTheft ? "Requests sharing confidential OTP or PIN."
+                : coercion ? "Coercion or urgency tactics detected."
+                : "No coercion or OTP harvesting detected.";
+        findings.scamEvidence = scam;
+
+        // Content Advisory
+        AnalyzeResponse.ContentDimension contentAdv = new AnalyzeResponse.ContentDimension();
+        boolean isPiracy = r.checkedHostname != null && (
+                r.checkedHostname.toLowerCase(Locale.ROOT).contains("net77") ||
+                r.checkedHostname.toLowerCase(Locale.ROOT).contains("netmirror") ||
+                r.checkedHostname.toLowerCase(Locale.ROOT).contains("movie") ||
+                r.checkedHostname.toLowerCase(Locale.ROOT).contains("pirate") ||
+                r.checkedHostname.toLowerCase(Locale.ROOT).contains("tamilrockers") ||
+                r.checkedHostname.toLowerCase(Locale.ROOT).contains("1337x"));
+        contentAdv.status = isPiracy ? "STREAMING_PIRACY" : "CLEAN";
+        contentAdv.details = isPiracy ? "Illicit movie streaming / copyright piracy pattern detected. Piracy portals carry elevated risk of malvertising, fraudulent redirects, and deceptive download prompts." : "No content or legality advisories.";
+        findings.contentAdvisory = contentAdv;
+
+        r.findings = findings;
+
+        // Verdict
+        if ("MALICIOUS".equals(v.getRiskLevel().name()) || "MALICIOUS".equals(tech.status)) {
+            r.verdict = "UNSAFE";
+        } else if ("HIGH_RISK".equals(v.getRiskLevel().name()) || "DECEPTIVE_SUBDOMAIN".equals(brand.status) || "LOOKALIKE".equals(brand.status) || "CREDENTIAL_HARVESTING".equals(scam.status) || "COERCION_URGENCY".equals(scam.status)) {
+            r.verdict = "FRAUD";
+        } else if (v.getRiskScore() >= 40 || "SUSPICIOUS".equals(tech.status) || "STREAMING_PIRACY".equals(contentAdv.status) || "CRACK_WAREZ".equals(contentAdv.status)) {
+            r.verdict = "SUSPICIOUS";
+        } else if (!v.isTrusted()) {
+            r.verdict = "UNVERIFIED";
+        } else {
+            r.verdict = "NO_KNOWN_THREATS";
+        }
+
+        r.checksRun.add("On-device 22-policy rule & ML risk engine (Local)");
+        r.checksRun.add("On-device brand & ccSLD domain evaluation (Local)");
+        r.checksFailed.add("Cloud threat intelligence check (Offline or not signed in)");
+
+        AnalyzeResponse.AiAnalysis ai = new AnalyzeResponse.AiAnalysis();
+        ai.configured = false;
+        ai.explanation = "On-device deterministic analysis. No server AI used.";
+        r.aiAnalysis = ai;
+
         return r;
     }
 

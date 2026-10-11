@@ -190,7 +190,7 @@ public class OverviewActivity extends AppCompatActivity {
         float frac = Math.max(0.02f, (float) r.value() / max);
         fill.setLayoutParams(new LinearLayout.LayoutParams(0, dp(8), frac));
         GradientDrawable fd = new GradientDrawable();
-        fd.setColor(Color.parseColor("#1BD671"));
+        fd.setColor(getColor(R.color.sky));
         fd.setCornerRadius(dp(4));
         fill.setBackground(fd);
         barWrap.addView(fill);

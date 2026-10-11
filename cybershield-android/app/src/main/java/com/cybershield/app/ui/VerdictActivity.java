@@ -102,12 +102,43 @@ public class VerdictActivity extends AppCompatActivity {
     private void renderServer(AnalyzeResponse r) {
         lastRiskTier = r.riskLevel;
         lastRiskScore = r.riskScore;
-        boolean noSignals = r.riskScore == 0
-                && (r.signals == null || r.signals.stream().noneMatch(s -> s.weight > 0));
-        boolean unverifiedClean = "SAFE".equals(r.riskLevel) && !r.trusted && noSignals;
 
-        String badgeText = unverifiedClean ? "UNVERIFIED" : r.priority + " · " + r.riskLevel.replace('_', ' ');
-        int color = unverifiedClean ? Color.parseColor("#9F9F9F") : colorForLevel(r.riskLevel);
+        String verdict = r.verdict;
+        if (verdict == null || verdict.isEmpty()) {
+            boolean noSignals = r.riskScore == 0
+                    && (r.signals == null || r.signals.stream().noneMatch(s -> s.weight > 0));
+            boolean unverifiedClean = "SAFE".equals(r.riskLevel) && !r.trusted && noSignals;
+            verdict = "MALICIOUS".equals(r.riskLevel) ? "UNSAFE"
+                    : "HIGH_RISK".equals(r.riskLevel) ? "FRAUD"
+                    : "SUSPICIOUS".equals(r.riskLevel) ? "SUSPICIOUS"
+                    : unverifiedClean ? "UNVERIFIED" : "NO_KNOWN_THREATS";
+        }
+
+        String badgeText;
+        int color;
+        switch (verdict) {
+            case "UNSAFE" -> {
+                badgeText = "UNSAFE · TECHNICAL THREAT";
+                color = Color.parseColor("#E5484D");
+            }
+            case "FRAUD" -> {
+                badgeText = "FRAUD · SCAM/IMPERSONATION";
+                color = Color.parseColor("#F08A3C");
+            }
+            case "SUSPICIOUS" -> {
+                badgeText = "SUSPICIOUS · CAUTION";
+                color = Color.parseColor("#D4A20B");
+            }
+            case "NO_KNOWN_THREATS" -> {
+                badgeText = "NO KNOWN THREATS DETECTED";
+                color = Color.parseColor("#16A34A");
+            }
+            default -> { // UNVERIFIED
+                badgeText = "UNVERIFIED";
+                color = Color.parseColor("#8A908D");
+            }
+        }
+
         b.badge.setText(badgeText);
         pill(color);
         b.score.setText(String.valueOf(r.riskScore));
@@ -115,15 +146,18 @@ public class VerdictActivity extends AppCompatActivity {
 
         int warnCount = 0;
         if (r.signals != null) for (AnalyzeResponse.Signal s : r.signals) if (s.weight > 0) warnCount++;
-        b.donut.set(r.riskScore, r.riskLevel, r.confidence, warnCount);
+        b.donut.set(r.riskScore, r.riskLevel, 0, warnCount);
 
-        if (r.trusted) {
-            b.wording.setText("On Secure Me's verified safe list — no warning signs.");
-        } else if (unverifiedClean) {
-            b.wording.setText("No warning signs found — but we could NOT confirm this is safe. "
-                    + "Be careful before logging in or paying.");
+        if ("NO_KNOWN_THREATS".equals(verdict)) {
+            b.wording.setText("Checks found no known threat. Note: This does not guarantee absolute safety.");
+        } else if ("UNVERIFIED".equals(verdict)) {
+            b.wording.setText("Evidence is insufficient or cloud checks were unavailable. Proceed with caution.");
+        } else if ("UNSAFE".equals(verdict)) {
+            b.wording.setText("High-risk technical threat identified. Avoid visiting this destination.");
+        } else if ("FRAUD".equals(verdict)) {
+            b.wording.setText("Credible evidence of brand impersonation or financial fraud.");
         } else {
-            b.wording.setText("“" + r.wording + "”  ·  " + r.confidence + "% confident");
+            b.wording.setText(r.wording == null ? "Concerning signals detected." : "“" + r.wording + "”");
         }
 
         b.paymentWarn.setVisibility(r.initiatesPayment ? View.VISIBLE : View.GONE);
@@ -134,7 +168,28 @@ public class VerdictActivity extends AppCompatActivity {
                     + (r.payment.pullPayment ? "  ·  PULL request" : ""));
         }
 
-        b.explanation.setText(r.explanation == null ? "" : r.explanation);
+        StringBuilder exp = new StringBuilder();
+        if (r.checkedHostname != null && !r.checkedHostname.isEmpty()) {
+            exp.append("Host checked: ").append(r.checkedHostname);
+            if (r.registrableDomain != null && !r.registrableDomain.isEmpty()) {
+                exp.append(" (").append(r.registrableDomain).append(")");
+            }
+            exp.append("\n\n");
+        }
+        if (r.explanation != null && !r.explanation.isEmpty()) {
+            exp.append(r.explanation).append("\n\n");
+        }
+        if (r.findings != null && r.findings.contentAdvisory != null && !"CLEAN".equals(r.findings.contentAdvisory.status)) {
+            exp.append("Advisory: ").append(r.findings.contentAdvisory.details).append("\n\n");
+        }
+        if (r.checksRun != null && !r.checksRun.isEmpty()) {
+            exp.append("Checks evaluated: ").append(String.join(", ", r.checksRun));
+        }
+        if (r.checksFailed != null && !r.checksFailed.isEmpty()) {
+            exp.append("\nUnavailable checks: ").append(String.join(", ", r.checksFailed));
+        }
+
+        b.explanation.setText(exp.toString().trim());
         adapter.set(r.signals);
 
         b.recsTitle.setVisibility(View.VISIBLE);
@@ -151,22 +206,22 @@ public class VerdictActivity extends AppCompatActivity {
             return;
         }
         LocationHelper.fetchCurrentLocation(this, new LocationHelper.Callback() {
-            @Override public void onLocation(double lat, double lon, float accuracyMeters, String provider) {
+            @Override public void onLocation(Double lat, Double lon, Float accuracyMeters, String provider) {
                 submitIncident(lat, lon, accuracyMeters, provider);
             }
             @Override public void onUnavailable(String reason) {
-                submitIncident(0.0, 0.0, 0f, "UNKNOWN");
+                submitIncident(null, null, null, "UNAVAILABLE: " + reason);
             }
         });
     }
 
-    private void submitIncident(double lat, double lon, float accuracyMeters, String provider) {
+    private void submitIncident(Double lat, Double lon, Float accuracyMeters, String provider) {
         new Repository(this).reportIncident(type, content, lastRiskTier, lastRiskScore,
                 lat, lon, accuracyMeters, provider, new Repository.IncidentCallback() {
                     @Override public void onLodged(IncidentReportResponse resp) {
                         new AlertDialog.Builder(VerdictActivity.this)
-                                .setTitle("Incident lodged")
-                                .setMessage("Incident ID: " + resp.incidentId
+                                .setTitle("Incident draft prepared")
+                                .setMessage("Reference: " + resp.incidentId
                                         + "\nJurisdiction: " + resp.jurisdictionStation
                                         + "\nHelpline: " + resp.helpline)
                                 .setPositiveButton("OK", null)
@@ -182,12 +237,12 @@ public class VerdictActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == RC_LOCATION) {
-            boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            boolean granted = LocationHelper.hasPermission(this);
             if (granted) {
                 lodgeGeoTaggedIncident();
             } else {
                 Toast.makeText(this, "Location permission denied — reporting without GPS tag.", Toast.LENGTH_SHORT).show();
-                submitIncident(0.0, 0.0, 0f, "UNKNOWN");
+                submitIncident(null, null, null, "PERMISSION_DENIED");
             }
         }
     }

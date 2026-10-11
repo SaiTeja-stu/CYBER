@@ -6,7 +6,7 @@
     <string name="scan_qr">Scan a QR code</string>
     <string name="paste_check">Check a message or link</string>
     <string name="history">History</string>
-    <string name="enable_protection">Enable system-wide protection</string>
+    <string name="enable_protection">Protect my whole phone</string>
 
     <string name="analyzing">Checking…</string>
     <string name="could_not_read_qr">No QR code found. Try again, holding the phone steady.</string>

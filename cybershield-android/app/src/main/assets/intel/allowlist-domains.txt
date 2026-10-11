@@ -19,6 +19,7 @@ phonepe.com
 sbi.co.in
 onlinesbi.sbi
 hdfcbank.com
+hdfc.bank.in
 icicibank.com
 axisbank.com
 irctc.co.in
@@ -36,3 +37,9 @@ swiggy.com
 zomato.com
 jio.com
 airtel.in
+openai.com
+chatgpt.com
+oaistatic.com
+oaiusercontent.com
+anthropic.com
+claude.ai

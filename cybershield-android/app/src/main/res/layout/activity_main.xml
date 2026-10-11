@@ -17,28 +17,42 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="100dp">
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="116dp">
 
-            <!-- 1. Top CardNav Pill Bar -->
+            <!-- 1. Top bar: theme toggle · brand · sign out -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardNav"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="14dp"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="3dp"
+                android:layout_height="60dp"
+                android:layout_marginBottom="18dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
                 app:cardBackgroundColor="@color/cyber_card_bg"
-                app:strokeColor="@color/cyber_dock_stroke"
+                app:strokeColor="@color/cyber_card_stroke"
                 app:strokeWidth="1dp">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:paddingStart="14dp"
+                    android:paddingStart="10dp"
                     android:paddingEnd="8dp">
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/swTheme"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:contentDescription="Dark mode"
+                        android:tooltipText="Light / dark mode"
+                        app:thumbIcon="@drawable/ic_theme_thumb"
+                        app:thumbIconTint="@color/theme_switch_icon"
+                        app:thumbTint="@color/theme_switch_thumb"
+                        app:trackTint="@color/theme_switch_track"
+                        app:trackDecorationTint="@color/theme_switch_outline" />
 
                     <!-- Center Logo + Brand Title (Secure Me) -->
                     <LinearLayout
@@ -59,7 +73,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Secure Me"
+                            android:text="SecureMe"
                             android:textColor="@color/text"
                             android:textSize="17sp"
                             android:textStyle="bold"
@@ -81,78 +95,6 @@
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 2. Hero Threat Radar Card -->
-            <LinearLayout
-                android:id="@+id/cardRadar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_radar_card"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="16dp"
-                android:layout_marginBottom="14dp">
-
-                <!-- Radar Visual Indicator -->
-                <FrameLayout
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:layout_marginEnd="14dp">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/bg_center_scan_fab"
-                        android:alpha="0.15" />
-
-                    <View
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_gravity="center"
-                        android:background="@drawable/bg_center_scan_fab" />
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="SHIELD ACTIVE • REAL-TIME DEFENSE"
-                        android:textColor="@color/cyber_emerald"
-                        android:textSize="9.5sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.08" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="All Vectors Secured"
-                        android:textColor="@color/text"
-                        android:textSize="17sp"
-                        android:textStyle="bold" />
-
-                    <!-- Status badge -->
-                    <TextView
-                        android:id="@+id/greeting"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:background="@drawable/bg_pill_toggle"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:paddingTop="3dp"
-                        android:paddingBottom="3dp"
-                        android:text="✓ ZERO TRUST 99.9% INDEX"
-                        android:textColor="@color/cyber_emerald"
-                        android:textSize="9.5sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnOverview"
                 style="@style/Widget.Material3.Button.OutlinedButton"
@@ -168,30 +110,31 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:baselineAligned="false"
-                android:layout_marginBottom="14dp">
+                android:layout_marginBottom="18dp">
 
                 <!-- Checks Card -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginEnd="6dp"
+                    android:layout_marginEnd="7dp"
                     android:background="@drawable/bg_stat_card"
                     android:orientation="vertical"
-                    android:padding="14dp">
+                    android:minHeight="108dp"
+                    android:padding="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="6dp">
+                        android:layout_marginBottom="18dp">
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="TOTAL CHECKS"
+                            android:text="CHECKS DONE"
                             android:textColor="@color/muted"
                             android:textSize="10sp"
                             android:textStyle="bold"
@@ -206,11 +149,12 @@
 
                     <TextView
                         android:id="@+id/statChecks"
+                        android:freezesText="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textColor="@color/text"
-                        android:textSize="26sp"
+                        android:textSize="32sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -219,23 +163,24 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="6dp"
+                    android:layout_marginStart="7dp"
                     android:background="@drawable/bg_stat_card"
                     android:orientation="vertical"
-                    android:padding="14dp">
+                    android:minHeight="108dp"
+                    android:padding="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="6dp">
+                        android:layout_marginBottom="18dp">
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="THREATS BLOCKED"
+                            android:text="SCAMS CAUGHT"
                             android:textColor="@color/muted"
                             android:textSize="10sp"
                             android:textStyle="bold"
@@ -250,11 +195,12 @@
 
                     <TextView
                         android:id="@+id/statThreats"
+                        android:freezesText="true"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textColor="@color/cyber_crimson"
-                        android:textSize="26sp"
+                        android:textSize="32sp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
@@ -263,30 +209,30 @@
             <LinearLayout
                 android:id="@+id/btnScanQr"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="58dp"
                 android:background="@drawable/bg_quick_action_btn"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:layout_marginBottom="14dp">
+                android:layout_marginBottom="12dp">
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:src="@drawable/ic_qr_viewfinder"
                     app:tint="@color/cyber_emerald"
-                    android:layout_marginEnd="12dp" />
+                    android:layout_marginEnd="14dp" />
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Scan Malicious QR &amp; UPI Code"
+                    android:text="Scan a QR or UPI code"
                     android:textColor="@color/text"
-                    android:textSize="13.5sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <ImageView
@@ -300,30 +246,30 @@
             <LinearLayout
                 android:id="@+id/btnForensics"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="58dp"
                 android:background="@drawable/bg_quick_action_btn"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
                 android:clickable="true"
                 android:focusable="true"
-                android:layout_marginBottom="14dp">
+                android:layout_marginBottom="12dp">
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:src="@drawable/ic_lock_key"
                     app:tint="@color/cyber_emerald"
-                    android:layout_marginEnd="12dp" />
+                    android:layout_marginEnd="14dp" />
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Email Forensics &amp; GeoLocation"
+                    android:text="Check a suspicious email"
                     android:textColor="@color/text"
-                    android:textSize="13.5sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <ImageView
@@ -339,13 +285,14 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_inspector_box"
                 android:orientation="vertical"
-                android:padding="12dp"
-                android:layout_marginBottom="18dp">
+                android:padding="16dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="22dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="INSTANT PAYLOAD INSPECTOR"
+                    android:text="CHECK A LINK OR MESSAGE"
                     android:textColor="@color/muted"
                     android:textSize="10sp"
                     android:textStyle="bold"
@@ -366,30 +313,30 @@
                         android:layout_weight="1"
                         android:layout_marginEnd="8dp"
                         app:hintEnabled="false"
-                        app:boxStrokeColor="@color/cyber_dock_stroke"
-                        app:boxBackgroundColor="#00000000">
+                        app:boxStrokeColor="@color/cyber_card_stroke"
+                        app:boxBackgroundColor="@color/cyber_input_bg">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/editText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Paste link, SMS payload, or text..."
+                            android:hint="Paste a link or message"
                             android:textColor="@color/text"
-                            android:textColorHint="@color/muted"
-                            android:textSize="13sp"
+                            android:textColorHint="@color/text_dim"
+                            android:textSize="12sp"
                             android:maxLines="2" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAnalyze"
                         android:layout_width="wrap_content"
-                        android:layout_height="40dp"
-                        android:text="Inspect"
-                        android:textColor="#04120A"
+                        android:layout_height="48dp"
+                        android:text="Check"
+                        android:textColor="@color/on_accent"
                         android:textSize="12sp"
                         android:textStyle="bold"
                         app:backgroundTint="@color/cyber_emerald"
-                        app:cornerRadius="10dp" />
+                        app:cornerRadius="12dp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -406,7 +353,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="LIVE TELEMETRY FEED"
+                    android:text="RECENT CHECKS"
                     android:textColor="@color/muted"
                     android:textSize="10.5sp"
                     android:textStyle="bold"
@@ -418,7 +365,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/cyber_emerald"
-                    android:text="View All"
+                    android:text="See all"
                     android:textSize="11sp" />
             </LinearLayout>
 
@@ -426,7 +373,7 @@
                 android:id="@+id/recentEmpty"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nothing checked yet."
+                android:text="Nothing checked yet. Paste a link above or scan a QR to get started."
                 android:textColor="@color/muted"
                 android:textSize="12sp"
                 android:layout_marginBottom="12dp"
@@ -457,23 +404,68 @@
                 android:nestedScrollingEnabled="false"
                 android:layout_marginBottom="16dp" />
 
-            <!-- 8. Protection & Biometric Controls -->
-            <com.google.android.material.button.MaterialButton
+            <!-- 8. Device-wide protection (fingerprint lock lives inside this setup screen) -->
+            <LinearLayout
                 android:id="@+id/btnProtection"
-                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/cyber_emerald"
-                app:strokeColor="@color/cyber_dock_stroke"
-                android:text="@string/enable_protection" />
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_protect_btn"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/enable_protection"
+                android:gravity="center_vertical"
+                android:minHeight="76dp"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingTop="14dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="14dp">
 
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/swBiometric"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Require fingerprint / face unlock"
-                android:textColor="@color/text" />
+                <FrameLayout
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/bg_protect_icon">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_nav_shield"
+                        app:tint="@color/protect_icon" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Protect my whole phone"
+                        android:textColor="@color/protect_title"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="We'll warn you about scam links and fake payments, wherever you tap."
+                        android:textColor="@color/protect_sub"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/protect_icon" />
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
@@ -488,17 +480,25 @@
         android:layout_marginEnd="14dp"
         android:layout_marginBottom="10dp">
 
-        <!-- Capsule background bar with 5 equal slots -->
-        <LinearLayout
+        <!-- Glass capsule with 5 equal slots; RubberDock draws the sliding highlight and owns touch
+             (tap to travel, drag / swipe / flick along the bar to pick a tab) -->
+        <com.cybershield.app.ui.RubberDock
             android:id="@+id/customBottomBar"
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:layout_alignParentBottom="true"
             android:background="@drawable/bg_floating_dock"
+            android:elevation="4dp"
+            android:outlineAmbientShadowColor="@color/nav_neon"
+            android:outlineSpotShadowColor="@color/nav_neon">
+
+        <LinearLayout
+            android:id="@+id/tabRow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:baselineAligned="false"
-            android:elevation="6dp">
+            android:baselineAligned="false">
 
             <!-- Tab 1: Shield (Home) -->
             <LinearLayout
@@ -510,16 +510,14 @@
                 android:orientation="vertical"
                 android:clickable="true"
                 android:focusable="true"
-                android:layout_margin="7dp"
-                android:foreground="?attr/selectableItemBackgroundBorderless"
-                android:background="@drawable/bg_dock_active">
+                android:contentDescription="Shield">
 
                 <ImageView
                     android:id="@+id/iconShield"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:src="@drawable/ic_nav_shield"
-                    app:tint="@color/cyber_emerald" />
+                    app:tint="@color/nav_neon" />
 
                 <TextView
                     android:id="@+id/textShield"
@@ -527,8 +525,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Shield"
-                    android:textColor="@color/cyber_emerald"
-                    android:textSize="10.5sp"
+                    android:textColor="@color/nav_neon"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -541,15 +539,14 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless">
+                android:focusable="true">
 
                 <ImageView
                     android:id="@+id/iconVault"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:src="@drawable/ic_nav_vault"
-                    app:tint="@color/muted" />
+                    app:tint="@color/nav_neon_idle" />
 
                 <TextView
                     android:id="@+id/textVault"
@@ -557,8 +554,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Vault"
-                    android:textColor="@color/muted"
-                    android:textSize="10.5sp"
+                    android:textColor="@color/nav_neon_idle"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -577,15 +574,14 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless">
+                android:focusable="true">
 
                 <ImageView
                     android:id="@+id/iconReports"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:src="@drawable/ic_nav_reports"
-                    app:tint="@color/muted" />
+                    app:tint="@color/nav_neon_idle" />
 
                 <TextView
                     android:id="@+id/textReports"
@@ -593,8 +589,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Reports"
-                    android:textColor="@color/muted"
-                    android:textSize="10.5sp"
+                    android:textColor="@color/nav_neon_idle"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -607,15 +603,14 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless">
+                android:focusable="true">
 
                 <ImageView
                     android:id="@+id/iconAcademy"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     android:src="@drawable/ic_nav_academy"
-                    app:tint="@color/muted" />
+                    app:tint="@color/nav_neon_idle" />
 
                 <TextView
                     android:id="@+id/textAcademy"
@@ -623,11 +618,12 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="Academy"
-                    android:textColor="@color/muted"
-                    android:textSize="10.5sp"
+                    android:textColor="@color/nav_neon_idle"
+                    android:textSize="10sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
+        </com.cybershield.app.ui.RubberDock>
 
         <!-- Elevated Center SCAN Button (Glows and rises prominently above the dock) -->
         <LinearLayout
@@ -638,7 +634,9 @@
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="14dp"
             android:elevation="14dp"
-            android:background="@drawable/bg_center_scan_fab"
+            android:outlineAmbientShadowColor="@color/nav_neon"
+            android:outlineSpotShadowColor="@color/nav_neon"
+            android:background="@drawable/bg_dock_scan_fab"
             android:gravity="center"
             android:orientation="vertical"
             android:clickable="true"
@@ -648,14 +646,14 @@
                 android:layout_width="22dp"
                 android:layout_height="22dp"
                 android:src="@drawable/ic_nav_scan"
-                app:tint="#04120A" />
+                app:tint="@color/on_neon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="SCAN"
-                android:textColor="#04120A"
+                android:textColor="@color/on_neon"
                 android:textSize="8.5sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.06" />
@@ -676,7 +674,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Secure Me is locked"
+            android:text="SecureMe is locked"
             android:textColor="@color/text"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -697,7 +695,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             app:backgroundTint="@color/cyber_emerald"
-            android:textColor="#04120A"
+            android:textColor="@color/on_accent"
             android:text="Unlock" />
 
         <com.google.android.material.button.MaterialButton

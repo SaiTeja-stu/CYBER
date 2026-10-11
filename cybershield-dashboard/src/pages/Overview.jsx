@@ -6,7 +6,7 @@ import { api } from '../api.js';
 import { Card, StatWidget, BarList, Spinner } from '../components/ui.jsx';
 import ParticleOrb from '../components/ParticleOrb.jsx';
 
-const PIE_COLORS = ['#63e31a', '#2fbf71', '#a3e635', '#ff5c66', '#ff9f43', '#5f7566'];
+const PIE_COLORS = ['#ff6b00', '#22c55e', '#3b82f6', '#a855f7', '#eab308', '#94a3b8'];
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -17,7 +17,7 @@ const CustomTooltip = ({ active, payload }) => {
           <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: data.color || data.payload.fill }} />
           <span>{data.name}</span>
         </div>
-        <div className="mt-1 font-mono font-semibold text-cyber-accent">Count: {data.value}</div>
+        <div className="mt-1 font-semibold text-cyber-accent">{data.value} checks</div>
       </div>
     );
   }
@@ -26,34 +26,25 @@ const CustomTooltip = ({ active, payload }) => {
 
 function Hero() {
   return (
-    <section className="relative mb-14 flex min-h-[560px] items-center md:min-h-[620px]">
+    <section className="relative mb-10 flex min-h-[440px] items-center md:min-h-[500px]">
       <ParticleOrb className="absolute inset-0 h-full w-full" />
-      <div className="relative z-10 grid w-full items-center gap-10 md:grid-cols-[1.3fr_minmax(160px,280px)_1fr]">
-        <div>
-          <div className="label-mono mb-6">[ Threat overview ]</div>
-          <h1 className="display text-[clamp(2.2rem,4.3vw,4rem)]">
-            Stopping scams
-            <br />
-            before they land
-          </h1>
-          <Link to="/analyze" className="pill-cta mt-9">
-            Analyze now
-            <span className="dot">
-              <ArrowUpRight className="h-4 w-4" />
-            </span>
-          </Link>
-        </div>
-        <div className="hidden md:block" />
-        <div className="md:pl-6">
-          <h1 className="display text-[clamp(2.2rem,4.3vw,4rem)] md:text-right">
-            in real
-            <br />
-            time.
-          </h1>
-          <p className="mt-6 max-w-[250px] text-xs leading-relaxed text-slate-400 md:ml-auto md:text-right">
-            Live scans, community reports and threat trends from every Secure Me app, browser extension and console.
-          </p>
-        </div>
+      <div className="rise-in relative z-10 max-w-xl rounded-3xl border border-white/10 bg-paper/30 p-6 shadow-[0_8px_32px_rgb(0_0_0/0.06)] backdrop-blur-md md:p-8">
+
+        <div className="label-mono mb-4">Overview</div>
+        <h1 className="display">
+          Stopping scams
+          <br />
+          <span className="dim">before they reach people.</span>
+        </h1>
+        <p className="mt-5 max-w-md text-base leading-relaxed text-slate-400">
+          Every check from the SecureMe app, browser extension and this dashboard, plus the scams people report to us, in one place.
+        </p>
+        <Link to="/analyze" className="pill-cta mt-8">
+          Check something now
+          <span className="dot">
+            <ArrowUpRight className="h-4 w-4" />
+          </span>
+        </Link>
       </div>
     </section>
   );
@@ -80,7 +71,7 @@ export default function Overview() {
       <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-400 flex items-center gap-3">
         <AlertOctagon className="h-6 w-6 shrink-0" />
         <div>
-          <h4 className="font-bold">Error loading overview data</h4>
+          <h4 className="font-bold">We couldn't load the latest numbers</h4>
           <p className="text-sm">{err}</p>
         </div>
       </div>
@@ -94,8 +85,8 @@ export default function Overview() {
       <Hero />
       <div className="flex h-64 flex-col items-center justify-center gap-3 text-slate-400">
         <Spinner className="h-8 w-8" />
-        <span className="font-mono text-xs uppercase tracking-widest text-slate-500">
-          Gathering Threat Intelligence…
+        <span className="text-sm text-slate-500">
+          Loading the latest numbers…
         </span>
       </div>
       </>
@@ -108,10 +99,10 @@ export default function Overview() {
 
   // Pie chart formatted data
   const riskPieData = [
-    { name: 'Malicious', value: lvl.MALICIOUS || 0, fill: '#ff5c66' },
-    { name: 'High Risk', value: lvl.HIGH_RISK || 0, fill: '#ff9f43' },
+    { name: 'Scam', value: lvl.MALICIOUS || 0, fill: '#ff5c66' },
+    { name: 'High risk', value: lvl.HIGH_RISK || 0, fill: '#ff9f43' },
     { name: 'Suspicious', value: lvl.SUSPICIOUS || 0, fill: '#f5d547' },
-    { name: 'Clean / Safe', value: lvl.SAFE || 0, fill: '#63e31a' },
+    { name: 'Safe', value: lvl.SAFE || 0, fill: '#22c55e' },
   ].filter(d => d.value > 0);
 
   const typePieData = perType.map((item, idx) => ({
@@ -125,46 +116,46 @@ export default function Overview() {
       <Hero />
 
       <div>
-        <div className="label-mono mb-3">[ 01 ] Live metrics</div>
+        <div className="label-mono mb-2">At a glance</div>
         <h2 className="display text-[clamp(1.8rem,3.4vw,2.8rem)]">
-          What is happening <span className="dim">right now</span>
+          What's happening <span className="dim">right now</span>
         </h2>
       </div>
 
       {/* Hero Stat Grid */}
       <div className="tile-cycle grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <StatWidget
-          label="Total Scans Processed"
+          label="Checks so far"
           value={stats.totalScans}
           icon={Activity}
-          subtext="Full pipeline audit log"
+          subtext="Links, messages, QR codes and emails"
         />
         <StatWidget
-          label="Scans (Last 7 Days)"
+          label="Checks this week"
           value={stats.scansLast7Days}
           tone="text-cyber-accent"
           icon={TrendingUp}
-          subtext="Recent threat traffic"
+          subtext="In the last 7 days"
         />
         <StatWidget
-          label="Pending Reports"
+          label="Reports to review"
           value={stats.reportsPending}
           tone="text-yellow-400"
           icon={FileText}
-          subtext="Awaiting admin review"
+          subtext="Waiting for someone to look"
         />
         <StatWidget
-          label="Confirmed Threats"
+          label="Scams confirmed"
           value={stats.reportsConfirmed}
           tone="text-red-400"
           icon={ShieldAlert}
-          subtext="Added to community blocklist"
+          subtext="Now blocked for everyone"
         />
       </div>
 
       {/* Analytics Grid Row 1: Interactive Pie Charts */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card title="Risk Classification Breakdown" icon={ShieldAlert}>
+        <Card title="How risky were the checks?" icon={ShieldAlert}>
           <div className="h-64 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -195,7 +186,7 @@ export default function Overview() {
           </div>
         </Card>
 
-        <Card title="Content Type Distribution" icon={Layers}>
+        <Card title="What people checked" icon={Layers}>
           <div className="h-64 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -229,13 +220,13 @@ export default function Overview() {
 
       {/* Analytics Grid Row 2 */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card title="Scan Volume per Day (Cold Archive)" icon={Activity}>
+        <Card title="Checks per day" icon={Activity}>
           <div className="pt-2">
             <BarList items={perDay} />
           </div>
         </Card>
 
-        <Card title="Top Detected Signals" icon={AlertOctagon}>
+        <Card title="Most common warning signs" icon={AlertOctagon}>
           <div className="pt-2">
             <BarList items={(trends.topSignals || []).map((s) => ({ label: s.label, count: s.count }))} />
           </div>
@@ -243,7 +234,7 @@ export default function Overview() {
       </div>
 
       {/* Top Scam Categories */}
-      <Card title="Top Identified Scam Categories" icon={FileText}>
+      <Card title="Most common kinds of scam" icon={FileText}>
         <div className="pt-2">
           <BarList items={(trends.topCategories || []).map((c) => ({ label: c.label, count: c.count }))} />
         </div>

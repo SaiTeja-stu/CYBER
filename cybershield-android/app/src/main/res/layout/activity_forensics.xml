@@ -35,7 +35,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Email Forensics &amp; GeoLocation"
+                android:text="Check an email"
                 android:textColor="@color/text"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Paste a raw .eml email (headers + body) to trace its relay path, verify SPF/DKIM/DMARC, geolocate the sender, and check it against past incidents."
+            android:text="Paste a suspicious email with its full details. We'll check who really sent it, where it came from, and whether it matches known scams."
             android:textColor="@color/muted"
             android:textSize="12sp" />
 
@@ -56,12 +56,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textColor="@color/cyber_emerald"
-            android:text="Load a sample malicious email" />
+            android:text="Try a sample scam email" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilEml"
             style="@style/AuthField"
-            android:hint="Paste raw .eml content">
+            android:hint="Paste the full email (in Gmail: ⋮ → Show original → Copy)">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEml"
                 android:layout_width="match_parent"
@@ -79,8 +79,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             app:backgroundTint="@color/cyber_emerald"
-            android:textColor="#04120A"
-            android:text="Run Forensic Analysis" />
+            android:textColor="@color/on_accent"
+            android:text="Check this email" />
 
         <ProgressBar
             android:id="@+id/progress"
@@ -126,7 +126,7 @@
                 android:layout_marginTop="14dp"
                 android:textColor="@color/cyber_emerald"
                 app:strokeColor="@color/cyber_dock_stroke"
-                android:text="Report to Cyber Cell (with GPS)" />
+                android:text="Prepare incident details (shares your location)" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDownloadPdf"
@@ -136,7 +136,7 @@
                 android:layout_marginTop="8dp"
                 android:textColor="@color/cyber_emerald"
                 app:strokeColor="@color/cyber_dock_stroke"
-                android:text="Download Evidence Certificate (PDF)" />
+                android:text="Save evidence report (PDF)" />
         </LinearLayout>
 
     </LinearLayout>

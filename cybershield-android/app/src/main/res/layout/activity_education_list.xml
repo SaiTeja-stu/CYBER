@@ -40,7 +40,7 @@
         android:layout_marginTop="2dp"
         android:textColor="@color/muted"
         android:textSize="13sp"
-        android:text="Tap a card. Then press ▶ Listen to hear it." />
+        android:text="Six short lessons, about a minute each. Tap one to start, or listen along." />
 
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/langGroup"

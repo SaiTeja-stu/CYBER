@@ -33,7 +33,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Analyze console"
+                android:text="Check anything"
                 android:textColor="@color/text"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -46,18 +46,18 @@
             android:layout_marginTop="10dp"
             app:singleSelection="true"
             app:selectionRequired="true">
-            <com.google.android.material.chip.Chip android:id="@+id/tURL" style="@style/Widget.Material3.Chip.Filter" android:text="URL" android:checked="true" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-            <com.google.android.material.chip.Chip android:id="@+id/tEMAIL" style="@style/Widget.Material3.Chip.Filter" android:text="EMAIL" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <com.google.android.material.chip.Chip android:id="@+id/tURL" style="@style/Widget.Material3.Chip.Filter" android:text="Link" android:checked="true" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <com.google.android.material.chip.Chip android:id="@+id/tEMAIL" style="@style/Widget.Material3.Chip.Filter" android:text="Email" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             <com.google.android.material.chip.Chip android:id="@+id/tSMS" style="@style/Widget.Material3.Chip.Filter" android:text="SMS" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
             <com.google.android.material.chip.Chip android:id="@+id/tQR" style="@style/Widget.Material3.Chip.Filter" android:text="QR" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-            <com.google.android.material.chip.Chip android:id="@+id/tWEBPAGE" style="@style/Widget.Material3.Chip.Filter" android:text="WEBPAGE" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-            <com.google.android.material.chip.Chip android:id="@+id/tSOCIAL" style="@style/Widget.Material3.Chip.Filter" android:text="SOCIAL" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <com.google.android.material.chip.Chip android:id="@+id/tWEBPAGE" style="@style/Widget.Material3.Chip.Filter" android:text="Web page" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <com.google.android.material.chip.Chip android:id="@+id/tSOCIAL" style="@style/Widget.Material3.Chip.Filter" android:text="Social post" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
         </com.google.android.material.chip.ChipGroup>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilContent"
             style="@style/AuthField"
-            android:hint="Paste a URL, message or QR payload">
+            android:hint="Paste a link, message or QR text">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etContent"
                 android:layout_width="match_parent"
@@ -71,7 +71,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Analyze" />
+            android:text="Check it" />
 
         <TextView
             android:layout_width="match_parent"
@@ -79,7 +79,7 @@
             android:layout_marginTop="14dp"
             android:textColor="@color/muted"
             android:textSize="12sp"
-            android:text="The full verdict — score, signal breakdown, explanation and recommendations — opens on the next screen." />
+            android:text="You'll get a clear answer next: how risky it is, why, and what to do." />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

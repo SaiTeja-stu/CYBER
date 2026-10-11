@@ -1,23 +1,15 @@
-import { analyze, AuthError, getSettings, report } from './api';
+import { analyze, report } from './api';
 import type { AnalyzeResponse, ContentType, PageContext } from './types';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
-const LEVEL_CLR: Record<string, string> = {
-  MALICIOUS: '#F87171',
-  HIGH_RISK: '#FB923C',
-  SUSPICIOUS: '#FDE047',
-  SAFE: '#34D399',
-};
-const SEV_CLR: Record<string, string> = {
-  CRITICAL: '#F87171',
-  HIGH: '#FB923C',
-  MEDIUM: '#FDE047',
-  LOW: '#93a0bc',
-  TRUST: '#34D399',
-};
+function show(id: string, on: boolean) {
+  const el = $(id);
+  if (el) el.classList.toggle('hidden', !on);
+}
 
 let lastAnalyzed: { type: ContentType; content: string } | null = null;
+let coldStartTimer: any = null;
 
 async function activeTab(): Promise<chrome.tabs.Tab | undefined> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -28,125 +20,268 @@ async function pageContext(tabId: number): Promise<PageContext | null> {
   try {
     return await chrome.tabs.sendMessage(tabId, { kind: 'GET_PAGE_CONTEXT' });
   } catch {
-    return null; // content script not present (chrome:// pages etc.)
+    return null; // content script not accessible on chrome:// or special tabs
   }
 }
 
-function show(id: string, on: boolean) {
-  $(id).classList.toggle('hidden', !on);
+function updateStatus(dotClass: 'active' | 'pending' | 'offline', text: string) {
+  const dot = $('statusDot')?.querySelector('.dot');
+  if (dot) {
+    dot.className = `dot ${dotClass}`;
+  }
+  const statusText = $('statusText');
+  if (statusText) {
+    statusText.textContent = text;
+  }
 }
 
 function render(r: AnalyzeResponse) {
-  show('loading', false);
-  show('result', true);
-  show('error', false);
+  if (coldStartTimer) clearTimeout(coldStartTimer);
+  show('loadingBox', false);
+  show('errorBox', false);
+  show('resultBox', true);
 
-  const clr = LEVEL_CLR[r.riskLevel] || '#93a0bc';
-  const badge = $('badge');
-  badge.textContent = `${r.priority} · ${r.riskLevel.replace('_', ' ')}`;
-  badge.style.background = clr + '22';
-  badge.style.color = clr;
-
-  $('wording').textContent = `“${r.wording}”`;
-  const score = $('score');
-  score.textContent = String(r.riskScore);
-  score.style.color = clr;
-  $('meta').textContent = `confidence ${r.confidence}${r.initiatesPayment ? ' · initiates payment' : ''}`;
-
-  if (r.payment) {
-    show('paymentCard', true);
-    $('paymentBody').textContent =
-      `${r.payment.scheme} ${r.payment.action} → ${r.payment.payeeName ?? '—'} (${r.payment.payeeVpa ?? '—'})` +
-      `\nAmount: ${r.payment.amount ?? 'not set'} ${r.payment.currency ?? ''}` +
-      (r.payment.pullPayment ? '  · PULL request' : '');
+  // Status header
+  if (r.execution.serverChecked) {
+    updateStatus('active', 'Cloud + Browser Verified');
+  } else if (r.execution.serverStatus === 'NOT_SIGNED_IN') {
+    updateStatus('offline', 'Browser checks only');
+  } else if (r.execution.serverStatus === 'TIMED_OUT') {
+    updateStatus('pending', 'Server check timed out');
   } else {
-    show('paymentCard', false);
+    updateStatus('offline', 'Server check unavailable');
   }
 
-  $('explanation').textContent = r.explanation;
+  // Verdict Hero
+  const hero = $('verdictHero');
+  const badge = $('verdictBadge');
+  const score = $('verdictScore');
+  const title = $('verdictTitle');
+  const reason = $('verdictReason');
+  const caveat = $('verdictCaveat');
 
-  const sig = $('signals');
-  sig.innerHTML = '';
-  r.signals.forEach((s) => {
-    const div = document.createElement('div');
-    div.className = 'sig';
-    div.innerHTML =
-      `<div><span class="sev" style="color:${SEV_CLR[s.severity] || '#93a0bc'}">${s.severity}</span> ` +
-      `<span class="name"></span></div><div class="detail"></div>`;
-    (div.querySelector('.name') as HTMLElement).textContent = s.name;
-    (div.querySelector('.detail') as HTMLElement).textContent = s.detail;
-    sig.appendChild(div);
-  });
-  if (r.signals.length === 0) sig.textContent = 'No suspicious indicators found.';
+  const verdictClass =
+    r.verdict === 'UNSAFE'
+      ? 'unsafe'
+      : r.verdict === 'FRAUD'
+      ? 'fraud'
+      : r.verdict === 'SUSPICIOUS'
+      ? 'suspicious'
+      : r.verdict === 'UNVERIFIED'
+      ? 'unverified'
+      : r.verdict === 'NO_KNOWN_THREATS'
+      ? 'no-threats'
+      : 'safe';
 
-  const recs = $('recs');
-  recs.innerHTML = '';
-  r.recommendations.forEach((t) => {
+  hero.className = `verdict-hero ${verdictClass}`;
+  badge.className = `verdict-badge ${verdictClass}`;
+  badge.textContent =
+    r.verdict === 'UNSAFE'
+      ? 'Unsafe'
+      : r.verdict === 'FRAUD'
+      ? 'Fraud'
+      : r.verdict === 'SUSPICIOUS'
+      ? 'Suspicious'
+      : r.verdict === 'UNVERIFIED'
+      ? 'Unverified'
+      : r.verdict === 'NO_KNOWN_THREATS'
+      ? 'No known threats'
+      : 'Official Verified';
+
+  score.textContent = `Risk Score: ${r.riskScore} / 100`;
+  title.textContent = r.verdictTitle;
+  reason.textContent = r.verdictReason;
+
+  if (r.verdict === 'SAFE_SIGNALS_FOUND') {
+    caveat.textContent = 'Independently verified official brand domain. Note: Absolute safety cannot be guaranteed.';
+  } else if (r.verdict === 'NO_KNOWN_THREATS') {
+    caveat.textContent = 'Note: Checks found no known threats on this domain. This is not a guarantee of safety.';
+  } else if (r.verdict === 'SUSPICIOUS') {
+    if (r.findings.contentAdvisory.status === 'STREAMING_PIRACY') {
+      caveat.textContent = 'Illicit movie streaming / piracy portal. High risk of deceptive ads, malvertising, and fake download buttons. Exercise extreme caution.';
+    } else {
+      caveat.textContent = 'Warning signals detected (e.g. disposable domain, redirect tracking, or unverified claims). Exercise extreme caution.';
+    }
+  } else if (r.verdict === 'UNVERIFIED') {
+    caveat.textContent = 'Authoritative cloud checks were unavailable or inconclusive. Treat content as untrusted.';
+  } else if (r.verdict === 'FRAUD' && r.findings.contentAdvisory.status === 'STREAMING_PIRACY') {
+    caveat.textContent = 'Illicit piracy mirror with deceptive registration or brand cloning. Never submit passwords, payment cards, or credentials.';
+  } else {
+    caveat.textContent = 'Evidence-based threat identification. Avoid interacting or entering credentials on this page.';
+  }
+
+  // Findings Breakdown: 1. Technical Threat
+  const pillThreat = $('pillThreat');
+  const descThreat = $('descThreat');
+  if (r.findings.technicalThreat.status === 'MALICIOUS') {
+    pillThreat.className = 'dim-pill pill-bad';
+    pillThreat.textContent = 'Malicious';
+  } else if (r.findings.technicalThreat.status === 'SUSPICIOUS') {
+    pillThreat.className = 'dim-pill pill-warn';
+    pillThreat.textContent = 'Suspicious';
+  } else {
+    pillThreat.className = 'dim-pill pill-clean';
+    pillThreat.textContent = 'Clean';
+  }
+  descThreat.textContent = r.findings.technicalThreat.details;
+
+  // 2. Brand Authenticity
+  const pillBrand = $('pillBrand');
+  const descBrand = $('descBrand');
+  if (r.findings.brandAuthenticity.status === 'OFFICIAL') {
+    pillBrand.className = 'dim-pill pill-clean';
+    pillBrand.textContent = 'Official';
+  } else if (
+    r.findings.brandAuthenticity.status === 'LOOKALIKE' ||
+    r.findings.brandAuthenticity.status === 'DECEPTIVE_SUBDOMAIN'
+  ) {
+    pillBrand.className = 'dim-pill pill-bad';
+    pillBrand.textContent = 'Impersonation';
+  } else if (r.findings.brandAuthenticity.status === 'UNVERIFIED_CLAIM') {
+    pillBrand.className = 'dim-pill pill-warn';
+    pillBrand.textContent = 'Unverified';
+  } else {
+    pillBrand.className = 'dim-pill pill-neutral';
+    pillBrand.textContent = 'Unrelated';
+  }
+  descBrand.textContent = r.findings.brandAuthenticity.details;
+
+  // 3. Scam Evidence
+  const pillScam = $('pillScam');
+  const descScam = $('descScam');
+  if (r.findings.scamEvidence.status === 'CREDENTIAL_HARVESTING') {
+    pillScam.className = 'dim-pill pill-bad';
+    pillScam.textContent = 'Credential Theft';
+  } else if (r.findings.scamEvidence.status === 'COERCION_URGENCY') {
+    pillScam.className = 'dim-pill pill-bad';
+    pillScam.textContent = 'Coercion / Urgency';
+  } else if (r.findings.scamEvidence.status === 'FINANCIAL_SCAM') {
+    pillScam.className = 'dim-pill pill-warn';
+    pillScam.textContent = 'Financial Scam';
+  } else {
+    pillScam.className = 'dim-pill pill-clean';
+    pillScam.textContent = 'None detected';
+  }
+  descScam.textContent = r.findings.scamEvidence.details;
+
+  // 4. Content Advisory
+  const pillContent = $('pillContent');
+  const descContent = $('descContent');
+  if (r.findings.contentAdvisory.status === 'STREAMING_PIRACY') {
+    pillContent.className = 'dim-pill pill-warn';
+    pillContent.textContent = 'Streaming / Piracy';
+  } else if (r.findings.contentAdvisory.status === 'GAMBLING') {
+    pillContent.className = 'dim-pill pill-warn';
+    pillContent.textContent = 'Gambling';
+  } else if (r.findings.contentAdvisory.status === 'CRACK_WAREZ') {
+    pillContent.className = 'dim-pill pill-warn';
+    pillContent.textContent = 'Cracked Software';
+  } else {
+    pillContent.className = 'dim-pill pill-clean';
+    pillContent.textContent = 'Clean';
+  }
+  descContent.textContent = r.findings.contentAdvisory.details;
+
+  // Audit List (Checks Run vs Failed)
+  const auditList = $('auditList');
+  auditList.innerHTML = '';
+  r.execution.checksRun.forEach((check) => {
     const li = document.createElement('li');
-    li.textContent = t;
-    recs.appendChild(li);
+    li.className = 'audit-item';
+    li.innerHTML = `<span class="audit-icon audit-ok">✓</span><span>${check}</span>`;
+    auditList.appendChild(li);
+  });
+  r.execution.checksFailed.forEach((fail) => {
+    const li = document.createElement('li');
+    li.className = 'audit-item';
+    li.innerHTML = `<span class="audit-icon audit-fail">⚠</span><span>${fail}</span>`;
+    auditList.appendChild(li);
+  });
+  const timeLi = document.createElement('li');
+  timeLi.className = 'audit-item';
+  const timeFormatted = new Date(r.analyzedAt).toLocaleTimeString();
+  timeLi.innerHTML = `<span class="audit-icon" style="color:var(--text-secondary)">⏱</span><span style="color:var(--text-secondary)">Timestamp: ${timeFormatted} (${r.execution.source})</span>`;
+  auditList.appendChild(timeLi);
+
+  // Recommendations
+  const recsList = $('recsList');
+  recsList.innerHTML = '';
+  r.recommendations.forEach((rec) => {
+    const li = document.createElement('li');
+    li.textContent = rec;
+    recsList.appendChild(li);
   });
 
-  show('report', true);
+  // Action buttons
+  show('reportBtn', true);
 }
 
 function renderError(e: unknown) {
-  show('loading', false);
-  show('result', false);
-  if (e instanceof AuthError) {
-    show('needLogin', true);
-    return;
-  }
-  show('error', true);
-  $('error').textContent = e instanceof Error ? e.message : 'Something went wrong.';
+  if (coldStartTimer) clearTimeout(coldStartTimer);
+  show('loadingBox', false);
+  show('resultBox', false);
+  show('errorBox', true);
+  updateStatus('offline', 'Check failed');
+
+  $('errorTitle').textContent = 'Unable to complete check';
+  $('errorMessage').textContent = e instanceof Error ? e.message : 'An unexpected error occurred.';
 }
 
 async function run() {
-  const { token, baseUrl } = await getSettings();
-  $('mode').textContent = token
-    ? 'Online: checks run in your browser and on ' + baseUrl.replace(/^https?:\/\//, '')
-    : 'Offline mode: checks run in your browser. Sign in (settings) to add server checks and reporting.';
-  show('needLogin', false);
-  show('error', false);
-  show('result', false);
-  show('loading', true);
+  updateStatus('pending', 'Checking…');
+  show('errorBox', false);
+  show('resultBox', false);
+  show('loadingBox', true);
+  $('loadingTitle').textContent = 'Checking this page…';
+  $('loadingSub').textContent = 'Parsing domain syntax and checking brand directory';
+
+  coldStartTimer = setTimeout(() => {
+    $('loadingTitle').textContent = 'Connecting to CyberShield server…';
+    $('loadingSub').textContent = 'Server may be waking from sleep on Render (can take up to 45 seconds). Please wait…';
+  }, 4000);
 
   const tab = await activeTab();
   if (!tab?.id || !tab.url || !/^https?:/.test(tab.url)) {
-    renderError(new Error('This page cannot be checked (not a normal web page).'));
+    renderError(new Error("This page cannot be checked (e.g. browser internal page)."));
     return;
   }
 
+  $('targetUrl').textContent = tab.url;
+
   const ctx = await pageContext(tab.id);
   const selection = ctx?.selection?.trim() || '';
-  show('scanSelection', selection.length > 0);
+  show('scanSelectionBtn', selection.length > 0);
 
-  const type: ContentType = 'WEBPAGE';
-  const content = ctx?.html && ctx.html.length > 40 ? ctx.html : tab.url;
+  const type: ContentType = 'URL';
+  const content = tab.url;
   lastAnalyzed = { type, content };
 
   try {
-    const r = await analyze({ type, content, pageUrl: tab.url, source: 'popup' });
+    const r = await analyze({ type, content, pageUrl: tab.url, source: 'popup' }, {
+      pageHtml: ctx?.html || '',
+      pageTitle: ctx?.title || tab.title || '',
+      onProgress: (step) => {
+        $('loadingSub').textContent = step;
+      },
+    });
     render(r);
   } catch (e) {
     renderError(e);
   }
 }
 
-$('recheck').addEventListener('click', run);
-$('toOptions').addEventListener('click', () => chrome.runtime.openOptionsPage());
-$('dashboard').addEventListener('click', async () => {
-  const { baseUrl } = await getSettings();
-  chrome.tabs.create({ url: baseUrl.replace(/\/$/, '') + '/' });
-});
-$('scanSelection').addEventListener('click', async () => {
+$('recheckBtn').addEventListener('click', run);
+$('optionsBtn').addEventListener('click', () => chrome.runtime.openOptionsPage());
+$('scanSelectionBtn').addEventListener('click', async () => {
   const tab = await activeTab();
   if (!tab?.id) return;
   const ctx = await pageContext(tab.id);
   const sel = ctx?.selection?.trim();
   if (!sel) return;
-  show('loading', true);
-  show('result', false);
+
+  show('loadingBox', true);
+  show('resultBox', false);
+  updateStatus('pending', 'Scanning selection…');
   lastAnalyzed = { type: 'SOCIAL', content: sel };
   try {
     render(await analyze({ type: 'SOCIAL', content: sel, source: 'popup-selection' }));
@@ -154,16 +289,17 @@ $('scanSelection').addEventListener('click', async () => {
     renderError(e);
   }
 });
-$('report').addEventListener('click', async () => {
+
+$('reportBtn').addEventListener('click', async () => {
   if (!lastAnalyzed) return;
-  const btn = $('report') as HTMLButtonElement;
+  const btn = $('reportBtn') as HTMLButtonElement;
   btn.disabled = true;
   btn.textContent = 'Reporting…';
   try {
     await report(lastAnalyzed.type, lastAnalyzed.content, 'reported from extension');
     btn.textContent = 'Reported ✓';
   } catch (e) {
-    btn.textContent = e instanceof AuthError ? 'Sign in to report' : 'Report failed';
+    btn.textContent = 'Sign in required to report';
     btn.disabled = false;
   }
 });

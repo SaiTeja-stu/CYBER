@@ -33,15 +33,15 @@ public class RiskDonutView extends View {
         float d = getResources().getDisplayMetrics().density;
         track.setStyle(Paint.Style.STROKE);
         track.setStrokeWidth(12 * d);
-        track.setColor(Color.parseColor("#33FFFFFF"));
+        track.setColor(c.getColor(com.cybershield.app.R.color.donut_track));
         arc.setStyle(Paint.Style.STROKE);
         arc.setStrokeWidth(12 * d);
         arc.setStrokeCap(Paint.Cap.ROUND);
-        big.setColor(Color.parseColor("#F2F2F2"));
+        big.setColor(c.getColor(com.cybershield.app.R.color.text));
         big.setTextAlign(Paint.Align.CENTER);
         big.setFakeBoldText(true);
         big.setTextSize(34 * d);
-        small.setColor(Color.parseColor("#9F9F9F"));
+        small.setColor(c.getColor(com.cybershield.app.R.color.muted));
         small.setTextAlign(Paint.Align.CENTER);
         small.setTextSize(12 * d);
         setOnClickListener(v -> { mode = (mode + 1) % 3; invalidate(); });

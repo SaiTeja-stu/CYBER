@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Fixed ambient background: green light beams from the top and bottom, drifting light
- * streaks, and slow floating particles. Purely decorative, pointer-events none.
+ * Fixed ambient background: a soft accent glow top and bottom, two slow light beams and a few drifting
+ * particles. Colours follow the theme's --accent. Purely decorative, pointer-events none.
  */
 export default function Aurora() {
   const ref = useRef(null);
@@ -16,15 +16,25 @@ export default function Aurora() {
     let h = 0;
     let raf = 0;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const count = window.innerWidth < 768 ? 70 : 150;
+    const count = window.innerWidth < 768 ? 40 : 80;
     const dots = Array.from({ length: count }, () => ({
       x: Math.random(),
       y: Math.random(),
-      r: 0.5 + Math.random() * 1.3,
-      v: 0.006 + Math.random() * 0.02,
-      a: 0.15 + Math.random() * 0.5,
+      r: 0.6 + Math.random() * 1.4,
+      v: 0.006 + Math.random() * 0.018,
+      a: 0.12 + Math.random() * 0.4,
       p: Math.random() * 6.28,
     }));
+
+    const readAccent = () => {
+      const root = document.documentElement;
+      const rgb = getComputedStyle(root).getPropertyValue('--accent').trim().split(/\s+/).join(',') || '255,107,0';
+      const dark = root.dataset.theme === 'dark';
+      return { rgb: dark ? rgb : '17,20,19', dim: dark ? 1 : 0.45 };
+    };
+    let accent = readAccent();
+    const obs = new MutationObserver(() => { accent = readAccent(); });
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
     const resize = () => {
       w = cv.clientWidth;
@@ -51,7 +61,7 @@ export default function Aurora() {
           }
         }
         const tw = 0.6 + 0.4 * Math.sin(d.p * 1.4);
-        ctx.fillStyle = `rgba(140, 255, 70, ${d.a * tw})`;
+        ctx.fillStyle = `rgba(${accent.rgb}, ${d.a * tw * accent.dim})`;
         ctx.beginPath();
         ctx.arc(d.x * w, d.y * h, d.r, 0, 6.283);
         ctx.fill();
@@ -62,6 +72,7 @@ export default function Aurora() {
 
     return () => {
       cancelAnimationFrame(raf);
+      obs.disconnect();
       window.removeEventListener('resize', resize);
     };
   }, []);
@@ -72,14 +83,11 @@ export default function Aurora() {
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(70% 46% at 50% -10%, rgba(99,227,26,0.20), transparent 70%), radial-gradient(60% 40% at 50% 112%, rgba(99,227,26,0.14), transparent 70%)',
+            'radial-gradient(70% 46% at 50% -10%, rgb(var(--accent) / 0.14), transparent 70%), radial-gradient(60% 40% at 50% 112%, rgb(var(--accent) / 0.10), transparent 70%)',
         }}
       />
       <div className="beam beam-top" />
       <div className="beam beam-bottom" />
-      <div className="streak s1" />
-      <div className="streak s2" />
-      <div className="streak s3" />
       <canvas ref={ref} className="absolute inset-0 h-full w-full" />
     </div>
   );

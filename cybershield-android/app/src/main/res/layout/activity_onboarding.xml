@@ -1,152 +1,206 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:scrollbars="none">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingStart="18dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="32dp">
+
+        <!-- Header -->
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="-8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="Back"
+            android:focusable="true"
+            android:padding="8dp"
+            android:src="@drawable/ic_back"
+            app:tint="@color/text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Protect my whole phone"
+            android:textColor="@color/text"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Everything is checked on your phone. Nothing leaves it."
+            android:textColor="@color/muted"
+            android:textSize="13.5sp" />
+
+        <!-- Progress -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_stat_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvProgress"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="0 of 4 turned on"
+                    android:textColor="@color/text"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvProgressHint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Takes about a minute"
+                    android:textColor="@color/muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:max="4"
+                app:indicatorColor="@color/cyber_emerald"
+                app:trackColor="@color/nav_neon_soft"
+                app:trackCornerRadius="4dp"
+                app:trackThickness="6dp" />
+        </LinearLayout>
+
+        <!-- Permissions -->
+        <TextView
+            style="@style/DashHeading"
+            android:text="Turn these on" />
+
+        <include android:id="@+id/rowSms" layout="@layout/item_permission_row" />
+        <include android:id="@+id/rowOverlay" layout="@layout/item_permission_row" />
+        <include android:id="@+id/rowAccessibility" layout="@layout/item_permission_row" />
+        <include android:id="@+id/rowNotif" layout="@layout/item_permission_row" />
+
+        <TextView
+            android:id="@+id/tvRestricted"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="?attr/selectableItemBackground"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:text="Setting greyed out? Open App info → ⋮ → Allow restricted settings."
+            android:textColor="@color/muted"
+            android:textSize="12sp" />
+
+        <!-- Preferences -->
+        <TextView
+            style="@style/DashHeading"
+            android:text="How it protects you" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_stat_card"
+            android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/btnBack"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:padding="6dp"
-                android:src="@drawable/ic_back"
-                android:tint="@color/text"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:focusable="true"
-                android:contentDescription="Back"
-                android:layout_marginEnd="8dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="System-wide protection"
-                android:textColor="@color/text"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+            <include android:id="@+id/setBrowser" layout="@layout/item_setting_row" />
+            <View android:layout_width="match_parent" android:layout_height="1dp"
+                android:layout_marginStart="16dp" android:background="@color/cyber_card_stroke" />
+            <include android:id="@+id/setStrict" layout="@layout/item_setting_row" />
+            <View android:layout_width="match_parent" android:layout_height="1dp"
+                android:layout_marginStart="16dp" android:background="@color/cyber_card_stroke" />
+            <include android:id="@+id/setLock" layout="@layout/item_setting_row" />
         </LinearLayout>
 
+        <!-- SMS checks -->
         <TextView
+            style="@style/DashHeading"
+            android:text="Text messages" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="These permissions let Secure Me warn you about scam SMS, phishing emails and dangerous websites. Every check runs on your device and nothing is uploaded. You can turn any of this off at any time."
-            android:textColor="@color/muted" />
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_stat_card"
+            android:orientation="vertical">
 
-        <TextView android:id="@+id/stSms" style="@style/OnbStep" android:text="1 · Allow reading SMS (scan incoming texts)" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnSms" style="@style/OnbBtn" android:text="Grant SMS access" />
+            <include android:id="@+id/setDlt" layout="@layout/item_setting_row" />
+            <View android:layout_width="match_parent" android:layout_height="1dp"
+                android:layout_marginStart="16dp" android:background="@color/cyber_card_stroke" />
+            <include android:id="@+id/setQuietBank" layout="@layout/item_setting_row" />
+            <View android:layout_width="match_parent" android:layout_height="1dp"
+                android:layout_marginStart="16dp" android:background="@color/cyber_card_stroke" />
+            <include android:id="@+id/setPromo" layout="@layout/item_setting_row" />
+        </LinearLayout>
 
-        <TextView android:id="@+id/stOverlay" style="@style/OnbStep" android:text="2 · Allow drawing over other apps (the warning banner)" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnOverlay" style="@style/OnbBtn" android:text="Open overlay setting" />
-
-        <TextView android:id="@+id/stAccessibility" style="@style/OnbStep" android:text="3 · Turn on the Secure Me accessibility service (dangerous-website warnings in your browser)" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnAccessibility" style="@style/OnbBtn" android:text="Open accessibility setting" />
-
-        <TextView android:id="@+id/stNotif" style="@style/OnbStep" android:text="4 · Allow notification access (auto-scan incoming email)" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnNotif" style="@style/OnbBtn" android:text="Open notification-access setting" />
-
-        <View android:layout_width="match_parent" android:layout_height="1dp"
-            android:layout_marginTop="24dp" android:background="@color/edge" />
-
-        <TextView style="@style/OnbStep" android:text="Browser protection" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/swWatchBrowsers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Warn me when I open a dangerous website in Chrome / any browser"
-            android:textColor="@color/text" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/swStrict"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Strict: also stop me on sites Secure Me can't verify (more interruptions)"
-            android:textColor="@color/text" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/swBiometric"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:checked="true"
-            android:text="Require fingerprint / face unlock to open the app"
-            android:textColor="@color/text" />
-
+        <!-- Try it -->
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Note: on Android 13+ you may first need to allow 'Restricted settings' for this app from its App info screen."
-            android:textColor="@color/muted"
-            android:textSize="12sp" />
-
-        <View android:layout_width="match_parent" android:layout_height="1dp"
-            android:layout_marginTop="20dp" android:background="@color/edge" />
-
-        <TextView style="@style/OnbStep" android:text="TRAI DLT &amp; SMS Protection" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/swDltProtection"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:checked="true"
-            android:text="TRAI DLT Header Verification: validate registered senders &amp; type suffixes (-T, -S, -G)"
-            android:textColor="@color/text" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/swSuppressLegit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:checked="true"
-            android:text="Silence false alarms: never flag authentic bank transactions or OTPs as fraud"
-            android:textColor="@color/text" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/swNotifyPromo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:checked="false"
-            android:text="Notify on commercial / promotional SMS (-P)"
-            android:textColor="@color/text" />
-
-        <View android:layout_width="match_parent" android:layout_height="1dp"
-            android:layout_marginTop="20dp" android:background="@color/edge" />
-
-        <TextView style="@style/OnbStep" android:text="Test the shield" />
-
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnTestLegitSms"
-            style="@style/OnbBtn" android:text="▶ Simulate authentic bank alert (VK-HDFCBK-T)" />
-
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnTestSms"
-            style="@style/OnbBtn" android:text="▶ Simulate fake bank SMS (+91 personal number)" />
-
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnTestEmail"
-            style="@style/OnbBtn" android:text="▶ Simulate a phishing email" />
+            style="@style/DashHeading"
+            android:text="Try it out" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Runs the real detection pipeline on sample messages so you can verify that genuine DLT bank alerts stay quiet and fake numbers are flagged."
+            android:text="See how SecureMe reacts. These are samples, nothing is sent."
             android:textColor="@color/muted"
-            android:textSize="12sp" />
+            android:textSize="12.5sp" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:chipSpacingHorizontal="8dp">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/btnTestLegitSms"
+                style="@style/Widget.Material3.Chip.Assist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Real bank alert"
+                app:chipIcon="@drawable/ic_sms"
+                app:chipIconTint="@color/cyber_emerald" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/btnTestSms"
+                style="@style/Widget.Material3.Chip.Assist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fake bank SMS"
+                app:chipIcon="@drawable/ic_warning"
+                app:chipIconTint="@color/cyber_crimson" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/btnTestEmail"
+                style="@style/Widget.Material3.Chip.Assist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phishing email"
+                app:chipIcon="@drawable/ic_mail"
+                app:chipIconTint="@color/cyber_crimson" />
+        </com.google.android.material.chip.ChipGroup>
     </LinearLayout>
 </ScrollView>

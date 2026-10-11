@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { useAuth } from './auth.jsx';
+import { ThemeToggle } from './theme.jsx';
 import Login from './pages/Login.jsx';
 import Reset from './pages/Reset.jsx';
 import Overview from './pages/Overview.jsx';
@@ -14,15 +15,20 @@ import Users from './pages/Users.jsx';
 import Aurora from './components/Aurora.jsx';
 import DockNav from './components/DockNav.jsx';
 import Footer from './components/Footer.jsx';
-import logoImg from './assets/logo.jpg';
+import logoImg from './assets/logo.png';
+
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+}
 
 function Shell({ children }) {
   const { logout } = useAuth();
   const location = useLocation();
-  const [time, setTime] = useState(new Date().toUTCString().slice(17, 25) + ' UTC');
+  const [hello, setHello] = useState(greeting);
 
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date().toUTCString().slice(17, 25) + ' UTC'), 1000);
+    const timer = setInterval(() => setHello(greeting()), 60_000);
     return () => clearInterval(timer);
   }, []);
 
@@ -34,18 +40,24 @@ function Shell({ children }) {
     <div className="relative isolate flex min-h-screen flex-col overflow-x-hidden bg-cyber-dark text-slate-100">
       <Aurora />
 
-      {/* Top bar: brand on the left, sign-out pill with the green dot on the right */}
-      <header className="relative z-30 flex h-20 items-center justify-between px-6 md:px-10">
-        <div className="flex items-center gap-3">
-          <img src={logoImg} alt="Cyber Shield" className="h-8 w-8 rounded-lg object-cover ring-1 ring-cyber-accent/30" />
-          <span className="text-sm font-medium tracking-[0.18em] text-white">
-            CYBER<span className="text-cyber-accent">SHIELD</span>
-          </span>
+      {/* Top bar: brand + greeting on the left, theme switch and sign-out on the right */}
+      <header className="relative z-30 flex h-20 items-center justify-between gap-4 px-5 md:px-10">
+        <div className="flex min-w-0 items-center gap-3">
+          <img src={logoImg} alt="SecureMe" className="h-9 w-9 shrink-0 rounded-xl object-cover shadow-sm ring-1 ring-cyber-border" />
+          <div className="min-w-0 leading-tight">
+            <div className="flex items-center gap-2">
+              <span className="text-[17px] font-bold tracking-tight text-white">
+                Secure<span className="text-cyber-accent">Me</span>
+              </span>
+              <span className="rounded-full bg-cyber-accent/10 px-2 py-0.5 text-[11px] font-semibold text-cyber-accent">Admin</span>
+            </div>
+            <div className="hidden truncate text-xs text-slate-400 sm:block">{hello}, here's how people are staying safe.</div>
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="hidden font-mono text-[11px] tracking-wider text-slate-500 sm:inline">{time}</span>
+        <div className="flex shrink-0 items-center gap-3">
+          <ThemeToggle />
           <button type="button" onClick={logout} className="pill-ghost">
-            Sign out
+            <span className="hidden sm:inline">Sign out</span>
             <span className="dot">
               <LogOut className="h-3.5 w-3.5" />
             </span>

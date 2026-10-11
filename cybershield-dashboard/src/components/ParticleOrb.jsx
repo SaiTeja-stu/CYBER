@@ -57,6 +57,16 @@ export default function ParticleOrb({ className = '' }) {
     };
     window.addEventListener('pointermove', onMove);
 
+    // colours follow the theme accent; additive blending only glows on a dark page
+    const readTheme = () => {
+      const root = document.documentElement;
+      const rgb = getComputedStyle(root).getPropertyValue('--accent').trim().split(/\s+/).join(',') || '255,107,0';
+      return { rgb, dark: root.dataset.theme === 'dark' };
+    };
+    let theme = readTheme();
+    const themeObs = new MutationObserver(() => { theme = readTheme(); });
+    themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
     const t0 = performance.now();
     const draw = (now) => {
       const t = reduce ? 0 : (now - t0) / 1000;
@@ -69,31 +79,43 @@ export default function ParticleOrb({ className = '' }) {
       const R = Math.min(w, h) * 0.4;
 
       const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 1.5);
-      g.addColorStop(0, 'rgba(99,227,26,0.20)');
-      g.addColorStop(0.5, 'rgba(99,227,26,0.07)');
-      g.addColorStop(1, 'rgba(99,227,26,0)');
+      g.addColorStop(0, `rgba(${theme.rgb},${theme.dark ? 0.2 : 0.12})`);
+      g.addColorStop(0.5, `rgba(${theme.rgb},${theme.dark ? 0.07 : 0.04})`);
+      g.addColorStop(1, `rgba(${theme.rgb},0)`);
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
 
-      const ry = t * 0.22 + mx * 0.55;
-      const rx = -0.22 + my * 0.32;
+      const ry = t * 0.18 + mx * 0.6;
+      const rx = -0.22 + my * 0.35 + Math.sin(t * 0.3) * 0.08;
       const cyw = Math.cos(ry);
       const syw = Math.sin(ry);
       const cxw = Math.cos(rx);
       const sxw = Math.sin(rx);
+      const breathe = 1 + Math.sin(t * 0.9) * 0.025;
 
-      ctx.globalCompositeOperation = 'lighter';
-      ctx.fillStyle = '#86ff40';
+      // near dots take the strong colour, far dots fade into the accent
+      const [ar, ag, ab] = theme.rgb.split(',').map(Number);
+      const [nr, ng, nb] = theme.dark ? [235, 255, 240] : [17, 20, 19];
+      const palette = [0, 1, 2, 3].map((i) => {
+        const k = i / 3;
+        return `rgb(${Math.round(nr + (ar - nr) * k)},${Math.round(ng + (ag - ng) * k)},${Math.round(nb + (ab - nb) * k)})`;
+      });
+
+      ctx.globalCompositeOperation = theme.dark ? 'lighter' : 'source-over';
       for (const p of pts) {
         const x1 = p.x * cyw + p.z * syw;
         const z1 = -p.x * syw + p.z * cyw;
         const y2 = p.y * cxw - z1 * sxw;
         const z2 = p.y * sxw + z1 * cxw;
-        const persp = 1 / (1 + z2 * 0.32);
-        const depth = (z2 + 1.4) / 2.8;
-        const size = p.s * (0.6 + depth * 1.4) * dpr * 0.9;
-        ctx.globalAlpha = Math.min(1, p.a * (0.3 + 0.9 * depth) * (0.8 + 0.2 * Math.sin(t * 2 + p.tw)));
-        ctx.fillRect(cx + x1 * R * persp, cy + y2 * R * persp, size, size);
+        // slow ripple travelling around the surface
+        const wave = 1 + 0.05 * Math.sin(p.y * 5 - t * 1.6) * Math.cos(p.x * 3 + t * 0.7);
+        const persp = 1 / (1 + z2 * 0.35);
+        const near = 1 - (z2 + 1.4) / 2.8;
+        const r = R * persp * breathe * wave;
+        const size = p.s * (0.5 + near * 1.6) * dpr * 0.9;
+        ctx.fillStyle = palette[Math.min(3, Math.max(0, Math.round((1 - near) * 3)))];
+        ctx.globalAlpha = Math.min(1, p.a * (0.18 + 0.95 * near) * (0.75 + 0.25 * Math.sin(t * 2 + p.tw)));
+        ctx.fillRect(cx + x1 * r, cy + y2 * r, size, size);
       }
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'source-over';
@@ -103,6 +125,7 @@ export default function ParticleOrb({ className = '' }) {
 
     return () => {
       cancelAnimationFrame(raf);
+      themeObs.disconnect();
       window.removeEventListener('resize', resize);
       window.removeEventListener('pointermove', onMove);
     };

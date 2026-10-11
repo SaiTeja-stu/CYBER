@@ -115,7 +115,7 @@ public class SecurityConfig {
                 "http://localhost:*", "https://localhost:*",
                 "http://127.0.0.1:*"));
         c.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
-        c.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        c.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Client", "Accept"));
         c.setMaxAge(3600L);
         var src = new UrlBasedCorsConfigurationSource();
         src.registerCorsConfiguration("/**", c);

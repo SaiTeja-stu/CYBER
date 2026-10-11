@@ -1,0 +1,67 @@
+<resources>
+    <!-- Dark mode: neutral black surfaces, hairline borders, one mint-green accent -->
+    <color name="cyber_dark_bg">#050505</color>
+    <color name="cyber_card_bg">#0E0E0E</color>
+    <color name="cyber_card_stroke">#1F1F1F</color>
+    <color name="cyber_dock_bg">#EB111515</color>
+    <color name="cyber_dock_stroke">#26302B</color>
+    <color name="cyber_input_bg">#0A0A0A</color>
+
+    <color name="cyber_emerald">#1BD671</color>
+    <color name="cyber_emerald_glow">#401BD671</color>
+    <color name="cyber_emerald_deep">#0F5A27</color>
+    <color name="cyber_crimson">#E5484D</color>
+    <color name="cyber_crimson_bg">#20E5484D</color>
+    <color name="cyber_blue">#7DD3FC</color>
+
+    <color name="ink">#050505</color>
+    <color name="panel">#0E0E0E</color>
+    <color name="edge">#1F1F1F</color>
+    <color name="text">#F2F2F2</color>
+    <color name="muted">#9F9F9F</color>
+    <color name="text_dim">#666666</color>
+    <color name="sky">#1BD671</color>
+    <color name="on_accent">#04120A</color>
+    <color name="tip_box_bg">#0F2418</color>
+
+    <color name="glass">#F20E0E0E</color>
+    <color name="glass_strong">#F20E0E0E</color>
+    <color name="glass_edge">#1F1F1F</color>
+    <color name="glass_dim">#0A0A0A</color>
+
+    <color name="bg_a">#07100B</color>
+    <color name="bg_b">#030504</color>
+    <color name="bg_c">#000000</color>
+    <color name="bg_glow">#1F1BD671</color>
+    <color name="scrim">#CC000000</color>
+    <color name="nav_glass">#B3050505</color>
+    <color name="donut_track">#33FFFFFF</color>
+
+    <!-- Dark mode dock is green; light mode dock is neon orange (values/colors.xml) -->
+    <color name="nav_neon">#1BD671</color>
+    <color name="nav_neon_idle">#A61BD671</color>
+    <color name="nav_neon_soft">#1F1BD671</color>
+    <color name="nav_neon_edge">#591BD671</color>
+    <color name="nav_neon_hi">#2BE283</color>
+    <color name="nav_neon_lo">#12B85F</color>
+    <color name="on_neon">#04120A</color>
+    <color name="dock_glass_top">#EB222222</color>
+    <color name="dock_glass_bottom">#E00E0E0E</color>
+    <color name="dock_glass_edge">#401BD671</color>
+    <color name="dock_glass_sheen">#1AFFFFFF</color>
+
+    <color name="pill_glass_top">#2EFFFFFF</color>
+    <color name="pill_glass_bottom">#08FFFFFF</color>
+    <color name="pill_highlight">#8CFFFFFF</color>
+    <color name="pill_shadow">#661BD671</color>
+
+    <!-- "Protect my whole phone" in dark mode: dark card, green used only as an accent -->
+    <color name="protect_start">#15211B</color>
+    <color name="protect_end">#0E1311</color>
+    <color name="protect_stroke">#591BD671</color>
+    <color name="protect_ripple">#261BD671</color>
+    <color name="protect_title">#F2F2F2</color>
+    <color name="protect_sub">#9DB2A6</color>
+    <color name="protect_icon_bg">#241BD671</color>
+    <color name="protect_icon">#1BD671</color>
+</resources>

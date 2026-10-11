@@ -2,88 +2,353 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Secure Me</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberShield / SecureMe</title>
     <style>
-      :root { color-scheme: dark; }
-      * { box-sizing: border-box; }
+      :root {
+        color-scheme: light dark;
+        --bg: #0d1117;
+        --card-bg: #161b22;
+        --card-border: #30363d;
+        --text-primary: #f0f6fc;
+        --text-secondary: #8b949e;
+        --text-muted: #6e7681;
+        --accent: #238636;
+        --accent-hover: #2ea043;
+        --btn-bg: #21262d;
+        --btn-border: #363b42;
+        --btn-text: #c9d1d9;
+        
+        --color-unsafe: #f85149;
+        --bg-unsafe: rgba(248, 81, 73, 0.12);
+        --border-unsafe: rgba(248, 81, 73, 0.35);
+
+        --color-fraud: #f0883e;
+        --bg-fraud: rgba(240, 136, 62, 0.12);
+        --border-fraud: rgba(240, 136, 62, 0.35);
+
+        --color-suspicious: #e3b341;
+        --bg-suspicious: rgba(227, 179, 65, 0.14);
+        --border-suspicious: rgba(227, 179, 65, 0.4);
+
+        --color-unverified: #8b949e;
+        --bg-unverified: rgba(139, 148, 158, 0.12);
+        --border-unverified: rgba(139, 148, 158, 0.35);
+
+        --color-no-threats: #58a6ff;
+        --bg-no-threats: rgba(88, 166, 255, 0.12);
+        --border-no-threats: rgba(88, 166, 255, 0.35);
+
+        --color-safe: #3fb950;
+        --bg-safe: rgba(63, 185, 80, 0.12);
+        --border-safe: rgba(63, 185, 80, 0.35);
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
       body {
-        width: 360px; margin: 0; padding: 14px;
-        font: 13px/1.45 system-ui, "Segoe UI", Roboto, sans-serif;
-        background: #0b1020; color: #e7ecf5;
+        width: 380px;
+        min-height: 480px;
+        max-height: 600px;
+        overflow-y: auto;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-size: 13px;
+        line-height: 1.5;
+        background: var(--bg);
+        color: var(--text-primary);
+        padding: 14px;
       }
-      h1 { font-size: 14px; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
-      .logo { width: 22px; height: 22px; border-radius: 5px; }
-      .muted { color: #93a0bc; }
-      .row { display: flex; gap: 8px; align-items: center; }
-      .badge { padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 12px; }
-      .score { font-size: 30px; font-weight: 700; }
-      .card { background: #131a2e; border: 1px solid #243050; border-radius: 8px; padding: 10px; margin-top: 10px; }
-      .sig { border-top: 1px solid #243050; padding: 6px 0; }
-      .sig:first-child { border-top: 0; }
-      .sig .name { font-weight: 600; }
-      .sig .detail { color: #93a0bc; }
-      .sev { font-size: 10px; font-weight: 700; letter-spacing: .04em; }
-      ul { margin: 6px 0 0; padding-left: 18px; }
+
+      /* Custom scrollbar */
+      body::-webkit-scrollbar { width: 6px; }
+      body::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--card-border);
+        margin-bottom: 12px;
+      }
+      .brand-box { display: flex; align-items: center; gap: 8px; }
+      .logo { width: 24px; height: 24px; border-radius: 6px; }
+      .brand-title { font-size: 15px; font-weight: 700; letter-spacing: -0.2px; }
+      .brand-title span { color: #58a6ff; }
+      .mode-badge {
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--text-secondary);
+        background: #21262d;
+        padding: 2px 8px;
+        border-radius: 12px;
+        border: 1px solid var(--card-border);
+      }
+      .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+      .dot.active { background: #3fb950; box-shadow: 0 0 6px rgba(63, 185, 80, 0.6); }
+      .dot.pending { background: #d29922; animation: pulse 1.2s infinite; }
+      .dot.offline { background: #8b949e; }
+      @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+      /* Cards */
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+
+      /* Verdict Hero */
+      .verdict-hero {
+        border-radius: 10px;
+        padding: 14px;
+        margin-bottom: 12px;
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+      }
+      .verdict-hero.unsafe { background: var(--bg-unsafe); border-color: var(--border-unsafe); }
+      .verdict-hero.fraud { background: var(--bg-fraud); border-color: var(--border-fraud); }
+      .verdict-hero.suspicious { background: var(--bg-suspicious); border-color: var(--border-suspicious); }
+      .verdict-hero.unverified { background: var(--bg-unverified); border-color: var(--border-unverified); }
+      .verdict-hero.no-threats { background: var(--bg-no-threats); border-color: var(--border-no-threats); }
+      .verdict-hero.safe { background: var(--bg-safe); border-color: var(--border-safe); }
+
+      .verdict-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+      }
+      .verdict-badge {
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 2px 8px;
+        border-radius: 6px;
+      }
+      .verdict-badge.unsafe { background: var(--color-unsafe); color: #fff; }
+      .verdict-badge.fraud { background: var(--color-fraud); color: #fff; }
+      .verdict-badge.suspicious { background: var(--color-suspicious); color: #000; }
+      .verdict-badge.unverified { background: var(--color-unverified); color: #fff; }
+      .verdict-badge.no-threats { background: var(--color-no-threats); color: #fff; }
+      .verdict-badge.safe { background: var(--color-safe); color: #fff; }
+
+      .verdict-score { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+      .verdict-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
+      .verdict-reason { font-size: 12.5px; color: var(--text-primary); margin-bottom: 6px; line-height: 1.45; }
+      .verdict-caveat { font-size: 11px; color: var(--text-secondary); font-style: italic; }
+
+      /* Host preview */
+      .target-info {
+        font-size: 11px;
+        color: var(--text-secondary);
+        word-break: break-all;
+        margin-bottom: 10px;
+        background: #111418;
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid #21262d;
+      }
+
+      /* Findings Dimensions Grid */
+      .section-title {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .findings-grid { display: flex; flex-direction: column; gap: 8px; }
+      .dim-item {
+        background: #111418;
+        border: 1px solid #262c34;
+        border-radius: 8px;
+        padding: 8px 10px;
+      }
+      .dim-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+      .dim-name { font-weight: 600; font-size: 12px; color: var(--text-primary); }
+      .dim-pill {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 4px;
+        text-transform: uppercase;
+      }
+      .pill-clean { background: rgba(63, 185, 80, 0.2); color: #3fb950; }
+      .pill-warn { background: rgba(210, 153, 34, 0.2); color: #d29922; }
+      .pill-bad { background: rgba(248, 81, 73, 0.2); color: #f85149; }
+      .pill-neutral { background: #21262d; color: #8b949e; }
+      .dim-desc { font-size: 11.5px; color: var(--text-secondary); line-height: 1.35; }
+
+      /* Execution list */
+      .audit-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+      .audit-item { font-size: 11.5px; display: flex; align-items: flex-start; gap: 6px; line-height: 1.35; }
+      .audit-icon { font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+      .audit-ok { color: #3fb950; }
+      .audit-fail { color: #d29922; }
+
+      /* Buttons & Actions */
+      .actions { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+      .btn-row { display: flex; gap: 8px; }
       button {
-        font: inherit; border: 1px solid #243050; background: #1b2540; color: #e7ecf5;
-        border-radius: 7px; padding: 7px 10px; cursor: pointer;
+        font-family: inherit;
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        border: 1px solid var(--btn-border);
+        background: var(--btn-bg);
+        color: var(--btn-text);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: background 0.15s, border-color 0.15s;
+        flex: 1;
       }
-      button.primary { background: #38bdf8; color: #0b1020; border-color: #38bdf8; font-weight: 600; }
-      button:disabled { opacity: .5; cursor: default; }
-      .actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-      a { color: #7dd3fc; }
-      .hidden { display: none; }
-      .spin { width: 14px; height: 14px; border: 2px solid #243050; border-top-color: #38bdf8;
-              border-radius: 50%; animation: s .8s linear infinite; display: inline-block; }
-      @keyframes s { to { transform: rotate(360deg); } }
+      button:hover:not(:disabled) { background: #30363d; border-color: #8b949e; color: #fff; }
+      button.primary {
+        background: #238636;
+        border-color: rgba(240, 246, 252, 0.1);
+        color: #fff;
+      }
+      button.primary:hover:not(:disabled) { background: #2ea043; }
+      button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+      /* Spinner / Loading state */
+      .loading-box {
+        text-align: center;
+        padding: 30px 16px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        margin-bottom: 12px;
+      }
+      .spinner {
+        width: 28px;
+        height: 28px;
+        border: 3px solid #30363d;
+        border-top-color: #58a6ff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 12px;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .loading-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+      .loading-sub { font-size: 12px; color: var(--text-secondary); }
+
+      .hidden { display: none !important; }
     </style>
   </head>
   <body>
-    <h1><img class="logo" src="icons/icon48.png" alt="" /> Secure Me</h1>
-    <div id="mode" class="muted" style="margin:-4px 0 8px;font-size:12px"></div>
+    <header>
+      <div class="brand-box">
+        <img class="logo" src="icons/icon48.png" alt="" />
+        <div class="brand-title">Secure<span>Me</span></div>
+      </div>
+      <div id="statusDot" class="mode-badge">
+        <span class="dot pending"></span>
+        <span id="statusText">Checking…</span>
+      </div>
+    </header>
 
-    <div id="needLogin" class="card hidden">
-      <p>You're not signed in.</p>
-      <button id="toOptions" class="primary">Open settings to sign in</button>
+    <div id="targetUrl" class="target-info"></div>
+
+    <!-- Active Loading State -->
+    <div id="loadingBox" class="loading-box">
+      <div class="spinner"></div>
+      <div id="loadingTitle" class="loading-title">Analyzing page signals…</div>
+      <div id="loadingSub" class="loading-sub">Parsing domain syntax and checking brand directory</div>
     </div>
 
-    <div id="loading" class="row muted"><span class="spin"></span>&nbsp; Checking this page…</div>
-
-    <div id="result" class="hidden">
-      <div class="row">
-        <span id="badge" class="badge"></span>
-        <span id="wording" class="muted"></span>
-      </div>
-      <div class="row" style="margin-top:6px; align-items:baseline; gap:10px;">
-        <span id="score" class="score"></span>
-        <span id="meta" class="muted"></span>
-      </div>
-
-      <div id="paymentCard" class="card hidden">
-        <strong>Payment</strong>
-        <div id="paymentBody" class="muted"></div>
+    <!-- Result Container -->
+    <div id="resultBox" class="hidden">
+      <!-- Verdict Hero Banner -->
+      <div id="verdictHero" class="verdict-hero">
+        <div class="verdict-header">
+          <span id="verdictBadge" class="verdict-badge"></span>
+          <span id="verdictScore" class="verdict-score"></span>
+        </div>
+        <div id="verdictTitle" class="verdict-title"></div>
+        <div id="verdictReason" class="verdict-reason"></div>
+        <div id="verdictCaveat" class="verdict-caveat"></div>
       </div>
 
-      <div id="explanation" class="card"></div>
-
+      <!-- Distinct 4-Dimension Findings -->
       <div class="card">
-        <strong>Why</strong>
-        <div id="signals"></div>
+        <div class="section-title">Evidence Breakdown</div>
+        <div class="findings-grid">
+          <div class="dim-item">
+            <div class="dim-header">
+              <span class="dim-name">Technical Threat</span>
+              <span id="pillThreat" class="dim-pill"></span>
+            </div>
+            <div id="descThreat" class="dim-desc"></div>
+          </div>
+
+          <div class="dim-item">
+            <div class="dim-header">
+              <span class="dim-name">Brand Authenticity</span>
+              <span id="pillBrand" class="dim-pill"></span>
+            </div>
+            <div id="descBrand" class="dim-desc"></div>
+          </div>
+
+          <div class="dim-item">
+            <div class="dim-header">
+              <span class="dim-name">Scam / Coercion Evidence</span>
+              <span id="pillScam" class="dim-pill"></span>
+            </div>
+            <div id="descScam" class="dim-desc"></div>
+          </div>
+
+          <div class="dim-item">
+            <div class="dim-header">
+              <span class="dim-name">Content & Legality Advisory</span>
+              <span id="pillContent" class="dim-pill"></span>
+            </div>
+            <div id="descContent" class="dim-desc"></div>
+          </div>
+        </div>
       </div>
 
+      <!-- Audit: Checks Run vs Failed -->
       <div class="card">
-        <strong>What to do</strong>
-        <ul id="recs"></ul>
+        <div class="section-title">Audit & Telemetry</div>
+        <ul id="auditList" class="audit-list"></ul>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="card">
+        <div class="section-title">Recommended Action</div>
+        <ul id="recsList" style="padding-left: 18px; font-size: 12px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 4px;"></ul>
       </div>
     </div>
 
-    <div id="error" class="card hidden" style="border-color:#7f1d1d;"></div>
+    <!-- Error / Offline Box -->
+    <div id="errorBox" class="card hidden" style="border-color: var(--color-unsafe); background: var(--bg-unsafe);">
+      <div style="font-weight: 700; color: var(--color-unsafe); margin-bottom: 4px;" id="errorTitle">Check Failed</div>
+      <div style="font-size: 12px; color: var(--text-primary);" id="errorMessage"></div>
+    </div>
 
+    <!-- Actions Footer -->
     <div class="actions">
-      <button id="recheck">Re-check page</button>
-      <button id="scanSelection" class="hidden">Check selected text</button>
-      <button id="report" class="hidden">Report as scam</button>
-      <button id="dashboard">Dashboard</button>
+      <div class="btn-row">
+        <button id="recheckBtn" class="primary">Check again</button>
+        <button id="scanSelectionBtn" class="hidden">Scan selection</button>
+      </div>
+      <div class="btn-row">
+        <button id="optionsBtn">Options & Sign-in</button>
+        <button id="reportBtn" class="hidden">Report</button>
+      </div>
     </div>
 
     <script type="module" src="popup.js"></script>
